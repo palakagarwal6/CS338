@@ -2,6 +2,8 @@
 
 Through this project, we are aiming to work with a sample database to simulate the Netflix daily top 10 dataset using MySQL on the school server. The database in file "netflix daily top .csv" contains data on the top movies and TV shows in the United States during the COVID-19 pandemic, from April 2020 - March 2022. Users will be able to query, add, and modify data through a Python-based command-line interface (CLI).
 
+# Dependencies
+
 In order to use this project effectively, the user must have:
 1. MySQL installed on the school server
 2. Any version of Python 3 installed on their machine
@@ -11,6 +13,8 @@ In order to use this project effectively, the user must have:
 Once the user has connected the MySQL server using the MySQL command-line client or any MySQL GUI tool, run the following SQL command to create a database:
 CREATE DATABASE netflix_db;
 USE netflix_db;
+
+# Importing via queries
 
 Now to create a sample table, run the following SQL command:
 CREATE TABLE IF NOT EXISTS `netflix_daily_top_sample` (
@@ -41,3 +45,13 @@ Finally, run the load_data.py file where you must replace the csv file name with
 python load_data.py
 
 You will be able create the table as you require and print it in your console!
+
+# Importing via MySQL Workbench "`Table Data Import Wizard"
+
+1. Create a dummy schema in MySQL Workbench
+2. Right Click on the `Tables` in the navigator, and select `Table Data Import Wizard`
+3. Download and select the `netflix_daily_top_sample.csv` file from this repo, and press next
+4. Select `Create new table` under the schema, and press next
+5. The columns should auto-populate, and press next
+6. Press next to execute the import
+7. If all went well, the data should be imported as a new table
