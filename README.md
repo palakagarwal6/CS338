@@ -9,8 +9,8 @@ In order to use this project effectively, the user must have:
 4. Pandas library installed for Python -> use command 'pip install pandas'.
 
 Once the user has connected the MySQL server using the MySQL command-line client or any MySQL GUI tool, run the following SQL command to create a database:
-CREATE DATABASE netflix_db;
-USE netflix_db;
+CREATE DATABASE netflix_db
+USE netflix_db
 
 Now to create a sample table, run the following SQL command:
 CREATE TABLE IF NOT EXISTS `netflix_daily_top_sample` (
