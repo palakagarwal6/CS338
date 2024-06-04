@@ -1,13 +1,20 @@
+# After transforming data in Excel to set "-" values to "0" 
+# in rank_as_of YTD_rank and Last_Week_Rank
+
 # CREATE SCHEMA Netflix
 USE netflix;
 
 CREATE TABLE Production (
 	Title VARCHAR(50) NOT NULL,
-    Date_As_Of Varchar(50), # will change to date format later
     Release_Date Varchar(50), # will change to date format later
     Netflix_Exclusive Varchar(3), # for yes/no (updated format to bit later)
-    Viewership_Score INT,
-    PRIMARY KEY(Title, Date_As_Of)
+    Type Varchar(20), # this will be dropped later, 
+    # Purpose of Type: Assigning values to 4 attributes below, then remove
+    Is_TV BIT,
+    Is_Movie BIT,
+    Is_Comedy BIT,
+    Is_Performance BIT,
+    PRIMARY KEY(Title)
 );
 
 
@@ -19,53 +26,50 @@ CREATE TABLE Rating (
     Last_Week_Rank INT DEFAULT 0,
     YTD_Rank INT DEFAULT 0,
     Days_in_top_10 INT DEFAULT 0,
-    FOREIGN KEY (Title, Date_As_Of) 
-    REFERENCES Production (Title, Date_As_Of)
+    Viewership_Score INT,
+    PRIMARY KEY (Title, Date_As_Of),
+    FOREIGN KEY (Title) 
+    REFERENCES Production (Title)
 );
 
-CREATE TABLE TV_show (
-	Title VARCHAR(50) NOT NULL,
-    Date_As_Of VARCHAR(50), # will change to date format later
-    FOREIGN KEY (Title, Date_As_Of) 
-    REFERENCES Production (Title, Date_As_Of)
-);
-
-CREATE TABLE Movie (
-	Title VARCHAR(50) NOT NULL,
-    Date_As_Of VARCHAR(50), # will change to date format later
-    FOREIGN KEY (Title, Date_As_Of) 
-    REFERENCES Production (Title, Date_As_Of)
-);
-
-CREATE TABLE Comedy (
-	Title VARCHAR(50) NOT NULL,
-    Date_As_Of VARCHAR(50), # will change to date format later
-    FOREIGN KEY (Title, Date_As_Of) 
-    REFERENCES Production (Title, Date_As_Of)
-);
-
-CREATE TABLE Concert_Performance (
-	Title VARCHAR(50) NOT NULL,
-    Date_As_Of VARCHAR(50), # will change to date format later
-    FOREIGN KEY (Title, Date_As_Of) 
-    REFERENCES Production (Title, Date_As_Of)
-);
+# Run the commands below separately
 
 # Switch the dates from varchar to date format
+# Might need to do SET SQL_SAFE_UPDATES = 0;
 UPDATE Production SET Release_Date = STR_TO_DATE(Release_Date, '%m-%d-%Y');
-UPDATE Production SET Date_As_Of = STR_TO_DATE(Date_As_Of, '%m-%d-%Y');
 UPDATE Rating SET Date_As_Of = STR_TO_DATE(Date_As_Of, '%m-%d-%Y');
-UPDATE TV_show SET Date_As_Of = STR_TO_DATE(Date_As_Of, '%m-%d-%Y');
-UPDATE Movie SET Date_As_Of = STR_TO_DATE(Date_As_Of, '%m-%d-%Y');
-UPDATE Comedy SET Date_As_Of = STR_TO_DATE(Date_As_Of, '%m-%d-%Y');
-UPDATE Concert_Performance SET Date_As_Of = STR_TO_DATE(Date_As_Of, '%m-%d-%Y');
 
-# Update from varchar to binary (0/1)
+# Update Netflix_Exclusive from Varchar to Binary (0/1)
 Update Production SET Netflix_Exclusive =  
 CASE 
 	WHEN Netflix_Exclusive = 'Yes' THEN 1
     ELSE 0
 END;
 
-# After transforming data in Excel to set "-" values to "0" 
-# in rank_as_of YTD_rank and Last_Week_Rank
+
+Update Production SET Is_TV =  
+CASE 
+	WHEN Type = 'TV Show' THEN 1
+    ELSE 0
+END;
+
+Update Production SET Is_Movie =  
+CASE 
+	WHEN Type = 'Movie' THEN 1
+    ELSE 0
+END;
+
+Update Production SET Is_Comedy =  
+CASE 
+	WHEN Type = 'Stand-Up Comedy' THEN 1
+    ELSE 0
+END;
+
+Update Production SET Is_Performance =  
+CASE 
+	WHEN Type = 'Concert/Performance' THEN 1
+    ELSE 0
+END;
+
+# Remove Type from the Production Table
+Alter Table Production Drop Column Type;
