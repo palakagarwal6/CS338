@@ -5,7 +5,7 @@ Through this project, we are aiming to work with a sample database to simulate t
 # Dependencies
 
 In order to use this project effectively, the user must have:
-1. MySQL installed on the school server
+1. MySQL installed locally
 2. Any version of Python 3 installed on their machine
 3. MySQL connector installed with Python -> use command 'pip install mysql-connector-python'
 4. Pandas library installed for Python -> use command 'pip install pandas'.
