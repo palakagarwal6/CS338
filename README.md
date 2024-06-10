@@ -7,12 +7,13 @@ Through this project, we are aiming to work with a sample database to simulate t
 In order to use this project effectively, the user must have:
 1. MySQL installed locally
 2. Any version of Python 3 installed on their machine
-3. MySQL connector installed with Python -> use command pip 'install mysql-connector-python'
-4. Pandas library installed for Python -> use command 'pip install pandas'.
+3. MySQL connector installed with Python -> use command pip `install mysql-connector-python`
+4. Pandas library installed for Python -> use command `pip install pandas`
+5. and IDE that can run `main.py`. `Main.py` was personally tested with VS Code and Sublime
 
 
 # Usage
-Simply copy this repository and run `main.py`.
+Simply copy this repository and run `main.py` with your IDE of choice. As mentioned, script was personally tested with VS Code and Sublime
 
 This will prompt you to:
 - connect to your mysql database, assuming your server host is `localhost`
