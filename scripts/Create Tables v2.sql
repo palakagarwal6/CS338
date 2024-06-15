@@ -7,7 +7,6 @@ CREATE TABLE Movie (
     adult Varchar(5) DEFAULT 'False', # will be booleans
     video Varchar(5) DEFAULT 'False', # will be booleans
     runtime DECIMAL(5,1) DEFAULT 0,
-    popularity DECIMAL(10,6) DEFAULT 0,
     vote_average DECIMAL(2,1) DEFAULT 0.0,
     vote_count INT DEFAULT 0,
     PRIMARY KEY(movie_id)
