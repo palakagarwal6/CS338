@@ -26,8 +26,6 @@ ALTER TABLE MovieInfo ADD CONSTRAINT vote_count CHECK (vote_count >= 0);
 CREATE TABLE Credit (
 	credit_id INT NOT NULL,
     person_id INT NOT NULL,
-    movie_id INT NOT NULL,
-    FOREIGN KEY (movie_id) REFERENCES Movie (movie_id),
 	PRIMARY KEY(credit_id)
 );
 
