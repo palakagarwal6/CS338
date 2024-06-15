@@ -16,7 +16,6 @@ ALTER TABLE MovieInfo ADD CONSTRAINT movie_id CHECK (movie_id >= 0);
 ALTER TABLE MovieInfo ADD CONSTRAINT status CHECK (status IN ('Released','Rumored','Post Production','In Production','Planned'));
 UPDATE Movie SET release_date = STR_TO_DATE(release_date, '%Y-%m-%d');
 ALTER TABLE MovieInfo ADD CONSTRAINT adult CHECK (adult IN ('True','False'));
-ALTER TABLE MovieInfo ADD CONSTRAINT video CHECK (video IN ('True','False'));
 ALTER TABLE MovieInfo ADD CONSTRAINT runtime CHECK (runtime >= 0);
 ALTER TABLE MovieInfo ADD CONSTRAINT popularity CHECK (popularity >= 0);
 ALTER TABLE MovieInfo ADD CONSTRAINT vote_average CHECK (vote_average >= 0);
