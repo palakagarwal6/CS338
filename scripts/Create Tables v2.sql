@@ -37,10 +37,17 @@ CREATE TABLE Cast (
 );
 
 CREATE TABLE Crew (
+	credit_id INT NOT NULL,
 	Department Varchar(20),
-    Job Varchar(20),
     FOREIGN KEY (credit_id) REFERENCES Credit (credit_id),
 	PRIMARY KEY(credit_id)
+);
+
+CREATE TABLE Crew_Job (
+	credit_id INT NOT NULL,
+    Job Varchar(20),
+    FOREIGN KEY (credit_id) REFERENCES Credit (credit_id),
+	PRIMARY KEY(credit_id, Job)
 );
 
 CREATE TABLE Credit2 (
