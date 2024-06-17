@@ -68,12 +68,6 @@ CREATE TABLE Genre (
 	PRIMARY KEY(genre_id)
 );
 
-CREATE TABLE ProductionCountries (
-	production_id INT NOT NULL,
-	country Varchar(50),
-	PRIMARY KEY(production_id, country)
-);
-
 CREATE TABLE Produced_By (
 	production_id INT NOT NULL,
 	movie_id INT NOT NULL,
