@@ -24,10 +24,13 @@ ALTER TABLE MovieInfo ADD CONSTRAINT vote_count CHECK (vote_count >= 0);
 CREATE TABLE Credit (
 	credit_id INT NOT NULL,
     person_id INT NOT NULL,
+	name Varchar(50),
+	gender INT NOT NULL,
 	PRIMARY KEY(credit_id)
 );
 
 ALTER TABLE Credit ADD CONSTRAINT credit_id CHECK (credit_id >= 0);
+ALTER TABLE Credit ADD CONSTRAINT gender CHECK (gender >= 0 AND gender <= 2);
 
 CREATE TABLE Cast (
 	cast_id INT NOT NULL UNIQUE,
