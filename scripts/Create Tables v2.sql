@@ -22,41 +22,34 @@ ALTER TABLE MovieInfo ADD CONSTRAINT vote_average CHECK (vote_average >= 0);
 ALTER TABLE MovieInfo ADD CONSTRAINT vote_count CHECK (vote_count >= 0);
 
 CREATE TABLE Credit (
-	credit_id INT NOT NULL,
     person_id INT NOT NULL,
 	name Varchar(50),
 	gender INT NOT NULL,
-	PRIMARY KEY(credit_id)
+	PRIMARY KEY(person_id)
 );
 
-ALTER TABLE Credit ADD CONSTRAINT credit_id CHECK (credit_id >= 0);
+ALTER TABLE Credit ADD CONSTRAINT person_id CHECK (person_id >= 0);
 ALTER TABLE Credit ADD CONSTRAINT gender CHECK (gender >= 0 AND gender <= 2);
 
 CREATE TABLE Cast (
 	cast_id INT NOT NULL UNIQUE,
-    credit_id INT NOT NULL,
-    FOREIGN KEY (credit_id) REFERENCES Credit (credit_id),
-	PRIMARY KEY(credit_id)
+    person_id INT NOT NULL UNIQUE,
+    FOREIGN KEY (person_id) REFERENCES Credit (person_id),
+	PRIMARY KEY(cast_id, person_id)
 );
 
 CREATE TABLE Crew (
-	credit_id INT NOT NULL,
+	person_id INT NOT NULL,
 	Department Varchar(20),
-    FOREIGN KEY (credit_id) REFERENCES Credit (credit_id),
-	PRIMARY KEY(credit_id)
+    FOREIGN KEY (person_id) REFERENCES Credit (person_id),
+	PRIMARY KEY(person_id)
 );
 
 CREATE TABLE Crew_Job (
-	credit_id INT NOT NULL,
-    Job Varchar(20),
-    FOREIGN KEY (credit_id) REFERENCES Credit (credit_id),
-	PRIMARY KEY(credit_id, Job)
-);
-
-CREATE TABLE Credit2 (
 	person_id INT NOT NULL,
-	name Varchar(50),
-	PRIMARY KEY(person_id)
+    Job Varchar(20),
+    FOREIGN KEY (person_id) REFERENCES Credit (person_id),
+	PRIMARY KEY(person_id, Job)
 );
 
 CREATE TABLE Cast2 (
@@ -95,11 +88,11 @@ CREATE TABLE Classified_In (
 );
 
 CREATE TABLE Comprises_Of (
-	production_id INT NOT NULL,
-	country Varchar(50),
+	movie_id INT NOT NULL,
+	person_id INT NOT NULL UNIQUE,
     FOREIGN KEY (movie_id) REFERENCES Movie (movie_id),
-	FOREIGN KEY (credit_id) REFERENCES Credit (credit_id),
-	PRIMARY KEY(movie_id, credit_id)
+	FOREIGN KEY (person_id) REFERENCES Credit (person_id),
+	PRIMARY KEY(movie_id, person_id)
 );
 
 
