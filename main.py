@@ -2,6 +2,10 @@ import mysql.connector
 from mysql.connector import OperationalError
 import os
 import getpass
+import shutil
+import time
+import tabulate
+
 cwd = os.getcwd()
 scripts = cwd + "\\scripts\\"
 
@@ -25,46 +29,80 @@ def executeSQL(filename):
 # sample search function
 def searchTitle():
     search = input("Input search Query:")
-
     search = "'%" + search + "%'"
-    query = "SELECT p.Title, p.Release_Date, p.Netflix_Exclusive, r.Rank_As_Of, r.Date_As_Of FROM production as p JOIN rating as r ON p.Title = r.Title Where p.Title LIKE " + search
+    query = "SELECT title, status, release_date, runtime, vote_average from movie where title like " + search
     c.execute(query)
     result = c.fetchall()
-    print("Title, Release Date, Netflix exclusive?, Rank, Rank As of")
-    for row in result:
-        print(row)
+    #print("title, status, release_date, runtime, vote_average")
+    #for row in result:
+    #    print(row)
+
+    table_headers = [col[0] for col in c.description]
+    table_data = result
+    formatted_table = tabulate.tabulate(table_data, headers=table_headers, tablefmt="grid")
+    print(formatted_table)
+
+
+def copy_files(src_dir, dest_dir):
+    for filename in os.listdir(src_dir):
+        src_file = os.path.join(src_dir, filename)
+        dest_file = os.path.join(dest_dir, filename)
+
+        if os.path.isfile(src_file):
+            shutil.copy(src_file, dest_file)
+            #print(f"Copied: {src_file} to {dest_file}")
 
 
 username = input("Enter DB Username: ")
-#pw = input("Enter DB Password:")
 pw = getpass.getpass(prompt="Enter DB Password: ")
 
 # connect to sql
 netflixdb = mysql.connector.connect(
-  host="localhost",
-  user=username,
-  password=pw,
-  allow_local_infile=True
+    host="localhost",
+    user=username,
+    password=pw,
+
+    #user="root",
+    #password="pw",
+
+    allow_local_infile=True
 )
 
 # connect cursor to db to execute queries
 c = netflixdb.cursor()
 
-# create db if does not exist
-c.execute("DROP DATABASE IF EXISTS netflix")
-c.execute("CREATE DATABASE IF NOT EXISTS netflix")
+print("Do you want to rewrite the whole database?")
+print("(you must do this if you haven't created the DB yet)")
+redo = input("y/[n]: ")
 
-# create tables
-executeSQL(scripts + 'Create Tables.sql')
+if (redo == "y"):
+    # create db if does not exist
+    c.execute("DROP DATABASE IF EXISTS netflix")
+    c.execute("CREATE DATABASE IF NOT EXISTS netflix")
 
-exec(open(scripts + "split_data.py").read())
+    # create tables
+    executeSQL(scripts + 'Create Tables v3.sql')
 
-# load data
-executeSQL(scripts + 'load_data.sql')
-netflixdb.commit()
+
+    # COPY DATA TO UPLOADS
+    sqlpath = 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads'
+    table_src = cwd + "\\tables"
+    copy_files(table_src, sqlpath)
+
+    print("Loading data into database... (this will take a while)")
+    start_time = time.perf_counter()
+
+    # load data
+    executeSQL(scripts + 'load_data v2.sql')
+    netflixdb.commit()
+
+    end_time = time.perf_counter()
+    execution_time = end_time - start_time
+    print(f"Done! Time taken: {execution_time:.6f} seconds")
 
 # sample homescreen function
 while True:
+    c.execute("Use Netflix;")
     print("1: Search Titles")
     print("2: Exit")
     user = input("Select option (1/[2]):")
@@ -72,3 +110,5 @@ while True:
         searchTitle()
     else:
         break
+
+netflixdb.close()
