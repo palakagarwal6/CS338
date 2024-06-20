@@ -7,19 +7,19 @@ Through this project, we are aiming to work with a sample database to simulate t
 In order to use this project effectively, the user must have:
 1. MySQL installed locally
 2. Any version of Python 3 installed on their machine
-3. MySQL connector installed with Python -> use command pip `install mysql-connector-python`
-4. Pandas library installed for Python -> use command `pip install pandas`
-5. and IDE that can run `main.py`. `Main.py` was personally tested with VS Code and Sublime
-
+3. The following modules. These can be installed via a script in `main.bat`
+ a. mysql-connector-python
+ b. getpass
+ c. tabulate
 
 # Usage
-Simply copy this repository and run `main.py` with your IDE of choice. As mentioned, script was personally tested with VS Code and Sublime
+Simply copy this repository and run `main.bat`
 
 This will prompt you to:
 - connect to your mysql database, assuming your server host is `localhost`
-- create the netflix schema
-- create production and rating tables
-- load data from `netflix_daily_top.csv` into tables and configure data correctly
+- allow you to choose create the netflix schema (if not already created)
+- create necessary tables
+- load data from `CS338-main\tables`
 - prompt you to a simple search title search function
 
-![image](https://github.com/palakagarwal6/CS338/assets/170012515/3cfcb244-6c30-40be-b7e9-460110345f38)
+![image](https://github.com/palakagarwal6/CS338/assets/170012515/72c1e590-35e4-4bda-8a91-f523cc2c9865)
