@@ -1,7 +1,7 @@
 import mysql.connector
 from mysql.connector import OperationalError
 import os
-import getpass
+from getpass4 import getpass
 import shutil
 import time
 import tabulate
@@ -54,7 +54,7 @@ def copy_files(src_dir, dest_dir):
 
 
 username = input("Enter DB Username: ")
-pw = getpass.getpass(prompt="Enter DB Password: ")
+pw = getpass(prompt="Enter DB Password: ")
 
 # connect to sql
 netflixdb = mysql.connector.connect(
@@ -63,9 +63,9 @@ netflixdb = mysql.connector.connect(
     password=pw,
 
     #user="root",
-    #password="pw",
+    #password="baked in password",
 
-    allow_local_infile=True
+    allow_local_infile=True,
 )
 
 # connect cursor to db to execute queries
