@@ -1,6 +1,6 @@
 # CS338 - Group 18 
 
-Through this project, we are aiming to work with a sample database to simulate the Netflix daily top 10 dataset using MySQL on the school server. The database in file "netflix daily top .csv" contains data on the top movies and TV shows in the United States during the COVID-19 pandemic, from April 2020 - March 2022. Users will be able to query, add, and modify data through a Python-based command-line interface (CLI).
+Through this project, we are aiming to work with a sample database to simulate the MovieLens dataset using MySQL on the school server. The database contains data on the movies released on or before July 2017. Users will be able to query, add, delete, and modify data through a Python-based command-line interface (CLI).
 
 # Dependencies
 
@@ -17,7 +17,7 @@ Simply copy this repository and run `main.bat`
 
 This will prompt you to:
 - connect to your mysql database, assuming your server host is `localhost`
-- allow you to choose create the netflix schema (if not already created)
+- allow you to choose create the movie schema (if not already created)
 - create necessary tables
 - load data from `CS338-main\tables`
 - prompt you to a simple search title search function
