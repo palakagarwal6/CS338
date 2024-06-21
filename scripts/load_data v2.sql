@@ -1,4 +1,5 @@
 USE netflix;
+SET GLOBAL local_infile=1;
 
 LOAD DATA LOCAL INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\movie.csv'
 INTO TABLE movie
