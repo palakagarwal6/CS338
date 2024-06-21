@@ -5,9 +5,10 @@ Through this project, we are aiming to work with a sample database to simulate t
 # Dependencies
 
 In order to use this project effectively, the user must have:
-1. MySQL installed locally
+1. MySQL Server 8.4 installed (THIS APPLICATION WILL NOT WORK WITH VERSIONS OTHER THAN 8.4)
 2. Any version of Python 3 installed on their machine
-3. The following modules. These can be installed via a script in `main.bat`
+ a. the environmental variables for python and its scripts properly configured (when installing python, there is an option to add python to PATH. This is 100% necessary) 
+3. The following modules. These can be installed via a script in `main.bat`, or you can use the pip command.
  a. mysql-connector-python
  b. getpass
  c. tabulate
