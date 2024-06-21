@@ -70,6 +70,13 @@ def movie_data():
     query = "SELECT title, movie_id, vote_average, status, runtime from movie where movie_id = " + search
     c.execute(query)
     result = c.fetchall()
+
+    if not result:
+        print("No movie found...")
+        return
+
+    print(result)
+
     table_headers = [col[0] for col in c.description]
     table_data = result
     formatted_table = tabulate.tabulate(table_data, headers=table_headers, tablefmt="grid")
@@ -105,7 +112,7 @@ def redo_database():
 
         # COPY DATA TO UPLOADS
         print("copying csv files")
-        sqlpath = 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads'
+        sqlpath = 'C:\\ProgramData\\MySQL\\MySQL Server 8.4\\Uploads'
         table_src = cwd + "\\tables"
 
         if dbtype == "2":

@@ -7,4 +7,4 @@ if "%install%"=="y" (
 	call "%~dp0\scripts\install.bat"
 )
 
-python.exe "%~dp0\main.py"
+py "%~dp0\main.py"
