@@ -1,41 +1,53 @@
 import streamlit as st
 import pandas as pd
 import os
-from sqlalchemy import create_engine, text
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy_utils import database_exists, create_database
+import mysql.connector
+from mysql.connector import Error
 
-def create_engine_and_connect(db_name: str):
+def create_connection(db_name=None):
     """
-    Create a SQLAlchemy engine and connect to the specified MySQL database.
-    Create the database if it doesn't exist.
+    Create a MySQL database connection.
 
     Args:
         db_name (str): The name of the database to connect to.
 
     Returns:
-        sqlalchemy.engine.base.Engine: The SQLAlchemy engine object.
+        mysql.connector.MySQLConnection: The MySQL connection object.
     """
     try:
-        # Base connection URL for MySQL
-        base_url = f"mysql+mysqlconnector://root:password@localhost/"
-        # Full database URL
-        db_url = f"{base_url}{db_name}"
-
-        # Create an engine for the base URL to check/create the database
-        base_engine = create_engine(base_url)
-    
-        # Check if the database exists, and create it if it doesn't
-        if not database_exists(db_url):
-            create_database(db_url)
-            st.success(f"Database '{db_name}' created successfully.")
-
-        # Create an engine for the database URL
-        engine = create_engine(db_url)
-        return engine
-    except SQLAlchemyError as e:
+        if db_name:
+            connection = mysql.connector.connect(
+                host='localhost',
+                user='root',
+                password='password',
+                database=db_name
+            )
+        else:
+            connection = mysql.connector.connect(
+                host='localhost',
+                user='root',
+                password='password'
+            )
+        if connection.is_connected():
+            return connection
+    except Error as e:
         st.error(f"Error: {e}")
         return None
+
+def create_database(db_name: str):
+    """
+    Create a MySQL database if it doesn't exist.
+
+    Args:
+        db_name (str): The name of the database to create.
+    """
+    connection = create_connection()
+    if connection:
+        cursor = connection.cursor()
+        cursor.execute(f"CREATE DATABASE IF NOT EXISTS {db_name}")
+        cursor.close()
+        connection.close()
+        st.success(f"Database '{db_name}' created successfully.")
 
 def determine_column_types(df: pd.DataFrame) -> dict:
     """
@@ -69,27 +81,48 @@ def load_csv_to_mysql(file_path: str, table_name: str, db_name: str) -> None:
         table_name (str): The name of the table to create and insert data into.
         db_name (str): The name of the database to connect to.
     """
-    engine = create_engine_and_connect(db_name)
-    if engine is None:
-        return
-    
-    # Read the CSV file into a DataFrame
-    df = pd.read_csv(file_path)
-    
-    # Determine column types
-    column_types = determine_column_types(df)
-    
-    # Create table if it doesn't exist and add a primary key column
-    with engine.connect() as conn:
-        conn.execute(text(f"""
+    create_database(db_name)
+    connection = create_connection(db_name)
+    if connection:
+        cursor = connection.cursor()
+        
+        # Read the CSV file into a DataFrame
+        df = pd.read_csv(file_path)
+        
+        # Determine column types
+        column_types = determine_column_types(df)
+        
+        # Find the column that ends with '_id' and use it as the primary key
+        primary_key_column = None
+        for col in df.columns:
+            if col.endswith('_id'):
+                primary_key_column = col
+                break
+
+        if primary_key_column is None:
+            st.error("No column ending in '_id' found in the CSV file.")
+            return
+        
+        # Create table if it doesn't exist
+        columns_with_types = ', '.join([f'{col} {col_type}' for col, col_type in column_types.items()])
+        create_table_query = f"""
         CREATE TABLE IF NOT EXISTS {table_name} (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            {', '.join([f'{col} {col_type}' for col, col_type in column_types.items()])}
+            {columns_with_types},
+            PRIMARY KEY ({primary_key_column})
         )
-        """))
-    
+        """
+        cursor.execute(create_table_query)
+        
         # Insert data into the table
-        df.to_sql(table_name, conn, if_exists='append', index=False)
+        for index, row in df.iterrows():
+            columns = ', '.join(row.index)
+            placeholders = ', '.join(['%s'] * len(row))
+            insert_query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+            cursor.execute(insert_query, tuple(row))
+        
+        connection.commit()
+        cursor.close()
+        connection.close()
 
 def display_data(table_name: str, db_name: str, limit: int, offset: int) -> pd.DataFrame:
     """
@@ -104,14 +137,13 @@ def display_data(table_name: str, db_name: str, limit: int, offset: int) -> pd.D
     Returns:
         pd.DataFrame: The queried data as a DataFrame.
     """
-    engine = create_engine_and_connect(db_name)
-    if engine is None:
-        return pd.DataFrame()
-    
-    query = f"SELECT * FROM {table_name} LIMIT %s OFFSET %s"
-    with engine.connect() as conn:
-        df = pd.read_sql(query, conn, params=(limit, offset))
-    return df
+    connection = create_connection(db_name)
+    if connection:
+        query = f"SELECT * FROM {table_name} LIMIT %s OFFSET %s"
+        df = pd.read_sql(query, connection, params=(limit, offset))
+        connection.close()
+        return df
+    return pd.DataFrame()
 
 def get_total_rows(table_name: str, db_name: str) -> int:
     """
@@ -124,15 +156,16 @@ def get_total_rows(table_name: str, db_name: str) -> int:
     Returns:
         int: The total number of rows in the table.
     """
-    engine = create_engine_and_connect(db_name)
-    if engine is None:
-        return 0
-    
-    query = f"SELECT COUNT(*) FROM {table_name}"
-    with engine.connect() as conn:
-        result = conn.execute(text(query))
-        total_rows = result.scalar()
-    return total_rows
+    connection = create_connection(db_name)
+    if connection:
+        cursor = connection.cursor()
+        query = f"SELECT COUNT(*) FROM {table_name}"
+        cursor.execute(query)
+        total_rows = cursor.fetchone()[0]
+        cursor.close()
+        connection.close()
+        return total_rows
+    return 0
 
 def delete_row_from_table(table_name: str, db_name: str, row_id: int) -> None:
     """
@@ -143,25 +176,24 @@ def delete_row_from_table(table_name: str, db_name: str, row_id: int) -> None:
         db_name (str): The name of the database.
         row_id (int): The ID of the row to delete.
     """
-    engine = create_engine_and_connect(db_name)
-    if engine is None:
-        return
-    
-    with engine.connect() as conn:
+    connection = create_connection(db_name)
+    if connection:
+        cursor = connection.cursor()
         # Check if row with the given ID exists
-        result = conn.execute(text(f"SELECT COUNT(*) FROM {table_name} WHERE id = :id"), {'id': row_id})
-        if result.fetchone()[0] == 0:
+        cursor.execute(f"SELECT COUNT(*) FROM {table_name} WHERE id = %s", (row_id,))
+        if cursor.fetchone()[0] == 0:
             st.error(f"Row with ID {row_id} does not exist in {table_name}.")
-            return
-
-        # Delete the row
-        print("Deleting ", row_id)
-        conn.execute(text(f"DELETE FROM {table_name} WHERE id = :id"), {'id': row_id})
-        st.cache_data.clear()
+        else:
+            # Delete the row
+            cursor.execute(f"DELETE FROM {table_name} WHERE id = %s", (row_id,))
+            connection.commit()
+            st.cache_data.clear()
+        cursor.close()
+        connection.close()
 
 @st.cache_resource
 def get_db_connection(db_name: str):
-    return create_engine_and_connect(db_name)
+    return create_connection(db_name)
 
 @st.cache_data
 def get_data(table_name: str, db_name: str) -> pd.DataFrame:
