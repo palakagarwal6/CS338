@@ -48,23 +48,51 @@ CREATE TABLE Crew (
 	PRIMARY KEY(person_id)
 );
 
-CREATE TABLE Crew_Job (
-	person_id INT NOT NULL,
-    Job Varchar(50),
-    FOREIGN KEY (person_id) REFERENCES Crew (person_id)
-		ON DELETE CASCADE
-        ON UPDATE CASCADE,
-	PRIMARY KEY(person_id, Job)
+--new changes start--
+
+CREATE TABLE Job (
+	Job_Name Varchar(50) NOT NULL,
+	PRIMARY KEY(Job_Name)
 );
 
-CREATE TABLE Crew_Dept (
+CREATE TABLE Department (
+	Department_Name Varchar(50) NOT NULL,
+	PRIMARY KEY(person_id)
+);
+
+CREATE TABLE Performs (
 	person_id INT NOT NULL,
-    Department Varchar(50),
+    Dept_Name Varchar(50),
+	movie_id INT NOT NULL,
     FOREIGN KEY (person_id) REFERENCES Crew (person_id)
 		ON DELETE CASCADE
-        ON UPDATE CASCADE,
-	PRIMARY KEY(person_id, Department)
+        	ON UPDATE CASCADE,
+	FOREIGN KEY (movie_id) REFERENCES Movie (movie_id)
+		ON DELETE CASCADE
+        	ON UPDATE CASCADE,
+	FOREIGN KEY (Dept_Name) REFERENCES Department (Department_Name)
+		ON DELETE CASCADE
+        	ON UPDATE CASCADE,
+	PRIMARY KEY(movie, person_id, Dept_Name)
 );
+
+CREATE TABLE Assigned_To (
+	person_id INT NOT NULL,
+   Job_Name Varchar(50),
+	movie_id INT NOT NULL,
+    FOREIGN KEY (person_id) REFERENCES Crew (person_id)
+		ON DELETE CASCADE
+        	ON UPDATE CASCADE,
+	FOREIGN KEY (movie_id) REFERENCES Movie (movie_id)
+		ON DELETE CASCADE
+        	ON UPDATE CASCADE,
+	FOREIGN KEY (Job_Name) REFERENCES Job (Job_Name)
+		ON DELETE CASCADE
+        	ON UPDATE CASCADE,
+	PRIMARY KEY(movie, person_id, Job_Name)
+);
+
+--new changes end--
 
 CREATE TABLE Production (
 	production_id INT NOT NULL,
