@@ -60,7 +60,7 @@ CREATE TABLE Department (
 	PRIMARY KEY(person_id)
 );
 
-CREATE TABLE Performs (
+CREATE TABLE Assigned_To (
 	person_id INT NOT NULL,
     Dept_Name Varchar(50),
 	movie_id INT NOT NULL,
@@ -76,7 +76,7 @@ CREATE TABLE Performs (
 	PRIMARY KEY(movie, person_id, Dept_Name)
 );
 
-CREATE TABLE Assigned_To (
+CREATE TABLE Performs (
 	person_id INT NOT NULL,
    Job_Name Varchar(50),
 	movie_id INT NOT NULL,
