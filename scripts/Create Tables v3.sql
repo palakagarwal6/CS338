@@ -33,11 +33,15 @@ ALTER TABLE Credit ADD CONSTRAINT person_id CHECK (person_id >= 0);
 CREATE TABLE Cast (
 	cast_id INT NOT NULL UNIQUE,
     person_id INT NOT NULL UNIQUE,
+	movie_id INT NOT NULL UNIQUE,
     `Character` Varchar(100),
     FOREIGN KEY (person_id) REFERENCES Credit (person_id)
 		ON DELETE CASCADE
         ON UPDATE CASCADE,
-	PRIMARY KEY(cast_id, person_id)
+     FOREIGN KEY (movie_id) REFERENCES Movie (movie_id)
+		ON DELETE CASCADE
+        ON UPDATE CASCADE,
+	PRIMARY KEY(movie_id, person_id)
 );
 
 CREATE TABLE Crew (
