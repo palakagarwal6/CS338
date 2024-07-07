@@ -5,12 +5,20 @@ from getpass4 import getpass
 import shutil
 import time
 from tabulate import tabulate
+from datetime import datetime
 
 # -----------------------------------
 # Utility Functions
 # -----------------------------------
 cwd = os.getcwd() # get working directory
 scripts = cwd + "\\scripts\\" # get scripts directory
+max_length = 30
+
+def cut_and_wrap(text):
+        if len(text) > max_length:
+            return '\n'.join(text[:max_length].split(' ')[:-1]) + "..."
+        else:
+            return text
 
 # run external sql scripts
 def executeSQL(filename):
@@ -101,9 +109,44 @@ def redo_database():
         execution_time = end_time - start_time
         print(f"Done! Time taken: {execution_time:.6f} seconds")
 
+# tabulates result, a resulting sql query
+def print_table(table_data):
+    table_headers = [col[0] for col in c.description]
+    table_data = list(map(cut_and_wrap, table_data))
+
+    formatted_table = tabulate(table_data, headers=table_headers, tablefmt="grid")
+    print(formatted_table)
+
+
+
 # -----------------------------------
-# Functions for R6
+# R6 Functions
 # -----------------------------------
+
+# sample search function. Returns movie ID in a table
+def search_title():
+    search = input("Input search Query:")
+    search = "'%" + search + "%'"
+    query = "SELECT title, movie_id from movie where title like " + search
+    c.execute(query)
+    result = c.fetchall()
+
+    print_table(result)
+
+# takes string and prints new lines if string is too long
+def print_summary(summary):
+    print("Movie Summary:")
+    words = summary.split()
+    current_line = ""
+    for word in words:
+        if len(current_line) + len(word) <= 50:
+            current_line += word + " "
+        else:
+            print(current_line.rstrip())
+            current_line = word + " "
+    print(current_line.rstrip())
+    print("")
+
 
 # genre dictionary for searching genres
 genre_dict = {
@@ -147,38 +190,6 @@ for (id1, name1), (id2, name2) in zip(first_half, second_half):
 
 genre_list_print = tabulate(combined_list, headers=["Genre ID", "Genre Name", "Genre ID", "Genre Name"], tablefmt="grid") # Print the table
 
-
-# -----------------------------------
-# R6 Functions
-# -----------------------------------
-
-# sample search function. Returns movie ID in a table
-def search_title():
-    search = input("Input search Query:")
-    search = "'%" + search + "%'"
-    query = "SELECT title, movie_id from movie where title like " + search
-    c.execute(query)
-    result = c.fetchall()
-
-    table_headers = [col[0] for col in c.description]
-    table_data = result
-    formatted_table = tabulate(table_data, headers=table_headers, tablefmt="grid")
-    print(formatted_table)
-
-# takes string
-def print_summary(summary):
-    print("Movie Summary:")
-    words = summary.split()
-    current_line = ""
-    for word in words:
-        if len(current_line) + len(word) <= 50:
-            current_line += word + " "
-        else:
-            print(current_line.rstrip())
-            current_line = word + " "
-    print(current_line.rstrip())
-    print("")
-
 # search movies with specific genres
 def select_genre(genre_numbers_str, genre_dict):
     # Check if the input string is empty
@@ -197,6 +208,7 @@ def format_genre_query(genre_names):
     # Join the genre names into a single string formatted for SQL
     return ', '.join(f"'{genre}'" for genre in genre_names)
 
+# main genre search function
 def search_genre():
     print(genre_list_print)
     print("Select the following genres you would like to search (search multiple, separated by commas:")
@@ -223,17 +235,36 @@ def search_genre():
     c.execute(query)
     result = c.fetchall()
 
-    table_headers = [col[0] for col in c.description]
-    table_data = result
-    formatted_table = tabulate(table_data, headers=table_headers, tablefmt="grid")
-    print(formatted_table)
+    if not result:
+        print("No movie(s) found...")
+        return
+
+    print_table(result)
+
+def search_credited_person():
+    person = input("Search person name:")
+    query = '''
+        SELECT m.title as 'Featured Title'
+        FROM movie m
+        JOIN Comprises_Of c ON m.movie_id = c.movie_id
+        JOIN credit cr ON c.person_id = cr.person_id
+        WHERE cr.name LIKE '%''' + person + '''%';
+        '''
+    c.execute(query)
+    result = c.fetchall()
+
+    if not result:
+        print("No movie(s) found...")
+        return
+    
+    print_table(result)
 
 # sample search function. Returns movie ID in a table
 def movie_data_simple():
     movie_id = input("Input movie ID:")
 
     query = '''
-        SELECT title as Title, vote_average as "Average Rating", status as Status, runtime as "Runtime (Minutes)" 
+        SELECT title as Title, vote_average as "Average Rating", status as Status, runtime as "Runtime (Minutes)", adult as "R Rated?", vote_average as "Avg. Rating", vote_count as "Rating count"
         from movie 
         where movie_id = %s'''
     c.execute(query, (movie_id,))
@@ -245,17 +276,15 @@ def movie_data_simple():
 
     #print(result)
 
-    table_headers = [col[0] for col in c.description]
-    table_data = result
-    formatted_table = tabulate(table_data, headers=table_headers, tablefmt="grid")
+    print_table(result)
 
+    # print summary
     query = "SELECT overview from movie where movie_id = %s"
     c.execute(query, (movie_id,))
     summary = c.fetchall()
     summary = summary[0]
     summary = summary[0]
 
-    print(formatted_table)
     print_summary(summary)
 
 # print genre, production and cast info
@@ -263,6 +292,11 @@ def move_data_full():
     movie_id = input("Input movie ID:")
 
     #queries
+    test_query = '''
+        SELECT *
+        FROM movie m
+        WHERE m.movie_id = %s
+    '''
     genre_query = '''
         SELECT g.genre_name AS Genre
         FROM Genre g 
@@ -278,48 +312,49 @@ def move_data_full():
         WHERE m.movie_id = %s
         '''
     credits_query = '''
-        SELECT cr.name AS Name, GROUP_CONCAT(ca.character ORDER BY ca.character SEPARATOR ', ') as Characters, NULL AS Roles
-        FROM credit cr
-        JOIN Cast ca ON ca.person_id = cr.person_id
-        JOIN Comprises_Of c ON c.person_id = cr.person_id
-        JOIN movie m ON c.movie_id = m.movie_id 
+        SELECT cr.name AS Name, GROUP_CONCAT(cc.character SEPARATOR ', ') as Characters, NULL AS Roles
+        FROM movie m
+        JOIN comprises_of co ON m.movie_id = co.movie_id
+        JOIN credit cr ON co.person_id = cr.person_id
+        JOIN cast cc ON cr.person_id = cc.person_id AND m.movie_id = cc.movie_id
         WHERE m.movie_id = %s
         GROUP BY cr.name
 
         UNION
 
-        SELECT cr.name AS Name, NULL AS Characters, GROUP_CONCAT(crw_jb.job ORDER BY crw_jb.job SEPARATOR ', ') as Roles
-        FROM credit cr
-        JOIN Crew crw ON crw.person_id = cr.person_id
-        JOIN crew_job crw_jb ON crw_jb.person_id = crw.person_id
-        JOIN Comprises_Of c ON c.person_id = cr.person_id
-        JOIN movie m ON c.movie_id = m.movie_id 
+        SELECT cr.name AS Name, NULL AS Characters, GROUP_CONCAT(p.Job_Name SEPARATOR ', ') as Roles
+        FROM movie m
+        JOIN comprises_of co ON m.movie_id = co.movie_id
+        JOIN credit cr ON co.person_id = cr.person_id
+        JOIN performs p ON cr.person_id = p.person_id AND m.movie_id = p.movie_id
         WHERE m.movie_id = %s
         GROUP BY cr.name
+
         '''
     
+    c.execute(test_query, (movie_id,))
+    test_result = c.fetchall()
+
+    if not test_result:
+        print("Movie not found...")
+        return
+
     c.execute(genre_query, (movie_id,))
     genre_result = c.fetchall()
 
-    table_headers = [col[0] for col in c.description]
-    table_data = genre_result
-    genre_table = tabulate(table_data, headers=table_headers, tablefmt="grid")
-    print(genre_table)
+    print_table(genre_result)
 
     c.execute(production_query, (movie_id,))
     prod_result = c.fetchall()
 
-    table_headers = [col[0] for col in c.description]
-    table_data = prod_result
-    prod_table = tabulate(table_data, headers=table_headers, tablefmt="grid")
-    print(prod_table)
+    print_table(prod_result)
 
     c.execute(credits_query, (movie_id, movie_id))
     creds_result = c.fetchall()
 
     table_headers = [col[0] for col in c.description]
     table_data = creds_result
-    credits_table = tabulate(table_data, headers=table_headers, tablefmt="grid")
+
     #print(credits_table)
     paginate(table_data, 20)
 
@@ -342,10 +377,323 @@ def search_production():
     c.execute(query)
     result = c.fetchall()
 
-    table_headers = [col[0] for col in c.description]
-    table_data = result
-    formatted_table = tabulate(table_data, headers=table_headers, tablefmt="grid")
-    print(formatted_table)
+    if not result:
+        print("No Movie(s) found...")
+        return
+
+    print_table(result)
+
+# -----------------------------------
+# R8 Functions
+# -----------------------------------
+
+def update_movie():
+    # get movie id to edit
+    movie_id = input("Input movie ID:")
+    query = '''
+        SELECT movie_id, title, status, release_date, adult, video, runtime
+        from movie 
+        where movie_id = %s
+        '''
+    c.execute(query, (movie_id,))
+    result = c.fetchall()
+
+    # quit if no movie found
+    if not result:
+        print("Movie not found...")
+        return
+
+    print_table(result)
+
+    # print summary
+    query = "SELECT overview from movie where movie_id = %s"
+    c.execute(query, (movie_id,))
+    summary = c.fetchall()
+    summary = summary[0]
+    summary = summary[0]
+
+    print_summary(summary)
+
+    # print update options
+    print("1: Movie ID")
+    print("2: Title")
+    print("3: Overview")
+    print("4: Status")
+    print("5: Release Date")
+    print("6: Adult")
+    print("7: video")
+    print("8: Runtime")
+    print("9: Exit to previous menu")
+    user = input("Select movie_attribute to edit (Default 9): ")
+
+    #movie id
+    if user == "1":
+        print("Type nothing and press enter to cancel")
+        new_movie_id = input("Input new movie ID (non-negative int): ")
+        if not new_movie_id.strip():
+            clear_terminal()
+            return
+
+        # check if new movie id is non-negative int
+        if not new_movie_id.isdigit() or new_movie_id.isdigit() < 0:
+            print("Invalid input, must be non-negative integer")
+            return
+        
+        # check if new movie_id already exists as a movie
+        check_unique_id = '''
+            SELECT *
+            FROM movie
+            where id = %s
+            '''
+        c.execute(query, (new_movie_id,))
+        check_result = c.fetchall()
+
+        if check_result:
+            print("Movie ID already exists")
+            return
+
+        query = '''
+            UPDATE movie
+            SET movie_id = %s
+            WHERE movie_id = %s
+            '''
+        c.execute(query, (new_movie_id,movie_id))
+        netflixdb.commit()
+        clear_terminal()
+        print("successful!")
+
+    #title
+    elif user == "2":
+        print("Type nothing and press enter to cancel")
+        new_title = input("Input new movie title: ")
+        if not new_title.strip():
+            clear_terminal()
+            return
+        
+        query = '''
+            UPDATE movie
+            set title = %s
+            WHERE movie_id = %s
+            '''
+        c.execute(query, (new_title,movie_id))
+        netflixdb.commit()
+        clear_terminal()
+        print("successful!")
+        
+    #Overview
+    elif user == "3":
+        print("Type nothing and press enter to cancel")
+        new_overview = input("Input new overview: ")
+        if not new_overview.strip():
+            clear_terminal()
+            return
+        
+        query = '''
+            UPDATE movie
+            set overview = %s
+            WHERE movie_id = %s
+            '''
+        c.execute(query, (new_overview,movie_id))
+        netflixdb.commit()
+        clear_terminal()
+        print("successful!")
+
+    #Status
+    elif user == "4":
+        options = {
+            1: "Rumored",
+            2: "Planned",
+            3: "In Production",
+            4: "Post Production",
+            5: "Released",
+            6: "Canceled",
+            7: "Exit",
+        }
+
+        print("1: Rumored")
+        print("2: Planned")
+        print("3: In Production")
+        print("4: Post Production")
+        print("5: Released")
+        print("6: Canceled")
+        print("7: Exit")
+        
+        new_status = input("Select new overview (default 7): ")
+        try:
+            choice = int(new_status)
+            if choice in options:
+                new_status = options[choice]
+            else:
+                print("Invalid input, exiting...")
+                clear_terminal()
+                return
+        except ValueError:
+            print("Invalid input, exiting...")
+            clear_terminal()
+            return
+
+        
+        query = '''
+            UPDATE movie
+            set status = %s
+            WHERE movie_id = %s
+            '''
+        c.execute(query, (new_status,movie_id))
+        netflixdb.commit()
+        clear_terminal()
+        print("successful!")
+
+    # release date
+    elif user == "5":
+        print("Type nothing and press enter to cancel")
+        new_date = input("Input new overview (yyyy-mm-dd format): ")
+        if not new_date.strip():
+            clear_terminal()
+            return
+        
+        try:
+            datetime.strptime(new_date, "%Y-%m-%d")
+            print("Valid Date")
+        except ValueError:
+            print("Invalid date format, exiting...")
+            clear_terminal()
+            return
+        
+        query = '''
+            UPDATE movie
+            set release_date = %s
+            WHERE movie_id = %s
+            '''
+        c.execute(query, (new_date,movie_id))
+        netflixdb.commit()
+        clear_terminal()
+        print("successful!")
+
+    #Adult
+    elif user == "6":
+        options = {
+            1: "True",
+            2: "False",
+            3: "Exit",
+        }
+
+        print("1: True")
+        print("2: False")
+        print("3: Exit")
+        
+        new_adult = input("Select option (default 3): ")
+        try:
+            choice = int(new_adult)
+            if choice in options:
+                new_adult = options[choice]
+            else:
+                print("Invalid input, exiting...")
+                clear_terminal()
+                return
+        except ValueError:
+            print("Invalid input, exiting...")
+            clear_terminal()
+            return
+        
+        query = '''
+            UPDATE movie
+            set adult = %s
+            WHERE movie_id = %s
+            '''
+        c.execute(query, (new_adult,movie_id))
+        netflixdb.commit()
+        clear_terminal()
+        print("successful!")
+
+    #video
+    elif user == "7":
+        options = {
+            1: "True",
+            2: "False",
+            3: "Exit",
+        }
+
+        print("1: True")
+        print("2: False")
+        print("3: Exit")
+        
+        new_video = input("Select option (default 3): ")
+        try:
+            choice = int(new_video)
+            if choice in options:
+                new_video = options[choice]
+            else:
+                print("Invalid input, exiting...")
+                clear_terminal()
+                return
+        except ValueError:
+            print("Invalid input, exiting...")
+            clear_terminal()
+            return
+        
+        query = '''
+            UPDATE movie
+            set video = %s
+            WHERE movie_id = %s
+            '''
+        c.execute(query, (new_video,movie_id))
+        netflixdb.commit()
+        clear_terminal()
+        print("successful!")
+
+    #runtime
+    elif user == "8":
+        print("Type nothing and press enter to cancel")
+        new_runtime = input("Input new runtime, in minutes (non-negative int): ")
+        if not new_runtime.strip():
+            clear_terminal()
+            return
+
+        # check if new movie id is non-negative int
+        if not new_runtime.isdigit() or new_runtime.isdigit() < 0:
+            print("Invalid input, must be non-negative integer")
+            return
+
+        query = '''
+            UPDATE movie
+            SET runtime = %s
+            WHERE movie_id = %s
+            '''
+        c.execute(query, (new_runtime,movie_id))
+        netflixdb.commit()
+        clear_terminal()
+        print("successful!")
+    else:
+        return
+
+# -----------------------------------
+# R11 Functions
+# -----------------------------------
+
+def genre_count():
+    query = '''
+        SELECT g.genre_name as Genre, COUNT(*) AS "Movie Count" 
+        FROM genre g
+        JOIN Classified_In c ON g.genre_id = c.genre_id 
+        GROUP BY g.genre_name 
+        ORDER BY movie_count DESC
+        LIMIT 10
+        '''
+    c.execute(query)
+    result = c.fetchall()
+    print_table(result)
+
+def best_genre():
+    query = '''
+        SELECT g.genre_name as Genre, ROUND(AVG(m.vote_average), 2) AS "Avg. Rating"
+        FROM genre g JOIN Classified_In c ON g.genre_id = c.genre_id
+        JOIN movie m ON c.movie_id = m.movie_id
+        GROUP BY g.genre_name
+        ORDER BY average_rating DESC;
+        '''
+    c.execute(query)
+    result = c.fetchall()
+    print_table(result)
 
 # -----------------------------------
 # Connecting to DB
@@ -400,7 +748,7 @@ redo_database()
 # -----------------------------------
 # Menu Nav
 # -----------------------------------
-# call r6 functions
+
 def R6():
     clear_terminal()
     while True:
@@ -408,7 +756,7 @@ def R6():
         print("2: Search titles with genre")
         print("3: Search featuring person, fuzzy")
         print("4: Basic details and synopsis (from movie ID)")
-        print("5: Search Metadata (from movie ID)")
+        print("5 (R12): Search Metadata (from movie ID)")
         print("6: Exit to main menu")
         user = input("Select option (default 6): ")
         if user == "1":
@@ -416,13 +764,13 @@ def R6():
         elif user == "2":
             search_genre()
         elif user == "3":
-            #search_cast()
-            print("to be implemented")
+            search_credited_person()
+            #print("to be implemented")
         elif user == "4":
             movie_data_simple()
         elif user == "5":
-            #move_data_full()
-            print("to be implemented")
+            move_data_full()
+            #print("to be implemented")
         else:
             return
 
@@ -437,22 +785,53 @@ def R7():
         else:
             return
 
+def R8():
+    clear_terminal()
+    while True:
+        print("1: Update movie attributes")
+        print("2: Exit to main menu")
+        user = input("Select option (default 2): ")
+
+        if user == "1":
+            update_movie()
+        else:
+            return
+
+def R11():
+    while True:
+        print("1: Popular Genres")
+        print("2: Most successful Genres")
+        print("3: Exit to previous menu")
+        user = input("Select option (Default 3): ")
+
+        if user == "1":
+            genre_count()
+        elif user == "2":
+            best_genre()
+        else:
+            clear_terminal()
+            return
+
 # main menu
 def menu():
     while True:
         clear_terminal()
         print("1 (R6): Searching and metadata")
         print("2 (R7): search productions")
-        print("4: Remake database")
-        print("5: Exit")
-        user = input("Select option (default 5): ")
+        print("3 (R8): Edit Movie Details")
+        print("4 (R11): Get statistics")
+        print("5: Remake database")
+        print("6: Exit")
+        user = input("Select option (default 6): ")
         if user == "1":
             R6()
         elif user == "2":
             R7()
         elif user == "3":
-            move_data_full()
+            R8()
         elif user == "4":
+            R11()
+        elif user == "5":
             redo_database()
         else:
             break
