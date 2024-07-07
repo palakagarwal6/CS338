@@ -1,0 +1,687 @@
+person_id,movie_id,job
+1,11,Director 
+1,11,Executive Producer 
+1,11,Writer 
+7,12,Screenplay 
+7,12,Director 
+7,12,Original Story 
+8,12,Supervising Film Editor 
+8,12,Co-Director 
+9,12,Producer 
+10,12,Screenplay 
+11,12,Screenplay 
+24,13,Director 
+26,13,Novel 
+27,13,Screenplay 
+28,13,Producer 
+29,13,Producer 
+30,13,Producer 
+36,13,Director of Photography 
+37,13,Original Music Composer 
+37,6,Original Music Composer 
+38,13,Editor 
+39,14,Director 
+40,15,Director 
+40,15,Producer 
+40,15,Screenplay 
+42,16,Director 
+42,16,Writer 
+42,16,Camera Operator 
+47,16,Original Music Composer 
+59,18,Screenplay 
+59,18,Director 
+59,18,Story 
+60,18,Producer 
+61,18,Screenplay 
+138,5,Director 
+138,5,Executive Producer 
+138,5,Writer 
+153,14,Original Music Composer 
+153,12,Original Music Composer 
+156,5,Editor 
+390,11,Casting 
+491,11,Original Music Composer 
+494,14,Casting 
+495,14,Casting 
+496,13,Production Design 
+498,13,Costume Design 
+555,13,Set Decoration 
+669,11,Art Direction 
+796,6,Set Decoration 
+996,18,Original Music Composer 
+997,18,Director of Photography 
+998,18,Editor 
+1000,18,Production Design 
+1016,16,Production Controller 
+1029,16,Sound Designer 
+1045,15,Original Music Composer 
+1113,18,Casting 
+1174,16,Executive Producer 
+1221,11,Casting 
+1632,16,Director of Photography 
+1634,16,Assistant Director 
+1744,15,Editor 
+2042,6,Director 
+2044,6,Director of Photography 
+2152,14,Author 
+2152,14,Screenplay 
+2152,14,Co-Producer 
+2216,12,Sound Designer 
+2216,12,Supervising Sound Editor 
+2216,12,Sound Re-Recording Mixer 
+2227,14,Thanks 
+2242,13,Casting 
+2294,5,Director 
+2294,5,Writer 
+2294,5,Editor 
+2545,5,Producer 
+2551,11,Editor 
+2952,16,Casting 
+3110,5,Director 
+3110,5,Writer 
+3111,5,Director 
+3111,5,Executive Producer 
+3111,5,Writer 
+3113,5,Director of Photography 
+3114,5,Director of Photography 
+3115,5,Director of Photography 
+3116,5,Original Music Composer 
+3117,5,Production Design 
+3118,5,Casting 
+3119,5,Sound Designer 
+3121,5,Editor 
+3176,11,Casting 
+3193,14,Supervising Sound Editor 
+3252,15,Special Effects 
+3924,18,Camera Operator 
+3925,16,Cinematography 
+3992,13,Supervising Sound Editor 
+4352,15,Makeup Department Head 
+5058,11,Set Decoration 
+5059,11,Art Direction 
+5061,11,Costume Design 
+6048,14,Dialogue Editor 
+6146,16,Producer 
+6151,16,Co-Executive Producer 
+6156,16,Editor 
+6157,16,Sound Designer 
+6750,16,Choreographer 
+6759,16,Producer 
+6760,16,Producer 
+6761,16,Producer 
+6762,16,Producer 
+6763,16,Producer 
+6764,16,Producer 
+6765,16,Producer 
+6766,16,Producer 
+6794,16,Editor 
+6795,16,Production Design 
+6796,16,Art Direction 
+6797,16,Costume Design 
+6940,5,Music Supervisor 
+7338,15,Set Decoration 
+7414,14,Editor 
+7538,14,Music Editor 
+7538,12,Music Editor 
+7719,6,Executive Producer 
+7719,6,Costume Design 
+7727,11,Animation 
+7753,11,Director of Photography 
+7879,12,Executive Producer 
+7883,12,Production Design 
+7891,12,Visual Development 
+7892,12,In Memory Of 
+7903,12,Casting 
+7912,12,Production Supervisor 
+7924,12,Story 
+7925,12,Visual Development 
+7927,12,Art Direction 
+7929,12,Animation 
+7943,12,CG Painter 
+7944,12,CG Painter 
+7946,12,CG Painter 
+7948,12,CG Painter 
+7949,12,Art Direction 
+7952,12,Art Direction 
+7960,12,Sculptor 
+7963,12,Visual Development 
+7967,12,Visual Development 
+7972,12,CG Painter 
+7988,12,Director of Photography 
+8007,12,CG Supervisor 
+8012,12,Animation Director 
+8013,12,Animation 
+8042,12,Animation 
+8058,12,Fix Animator 
+8059,12,Animation Manager 
+8062,12,Editorial Production Assistant 
+8066,12,Second Film Editor 
+8071,12,First Assistant Editor 
+8078,12,Sound Effects Editor 
+8084,12,CG Supervisor 
+8098,12,CG Supervisor 
+8115,12,CG Supervisor 
+8135,12,Camera Supervisor 
+8153,12,Post Production Supervisor 
+8155,12,Projection 
+8158,12,Supervising Sound Editor 
+8159,12,Sound Effects Editor 
+8160,13,Foley 
+8165,12,Sound Design Assistant 
+8215,14,Producer 
+8216,14,Producer 
+8217,14,Director of Photography 
+8219,14,Editor 
+8220,14,Production Design 
+8221,14,Art Direction 
+8222,14,Costume Design 
+8274,13,Leadman 
+8288,13,Production Coordinator 
+8374,18,Co-Producer 
+8375,18,Post Production Supervisor 
+8375,18,Associate Producer 
+8376,18,Sound Designer 
+8378,18,Art Direction 
+8378,18,Visual Effects Art Director 
+8379,18,Art Direction 
+8379,18,Visual Effects Art Director 
+8380,18,Art Direction 
+8381,18,Art Direction 
+8382,18,Art Direction 
+8383,18,Set Decoration 
+8384,18,Set Decoration 
+8385,18,Costume Design 
+8386,18,Production Manager 
+8387,18,Unit Production Manager 
+8389,18,Production Manager 
+8390,18,Production Manager 
+8392,18,Second Unit 
+8392,18,Second Unit Director of Photography 
+8425,11,Editor 
+8504,15,Director of Photography 
+8532,14,Post Production Supervisor 
+8679,13,Art Direction 
+8794,13,Assistant Art Director 
+9042,5,Set Decoration 
+9441,18,Foley 
+9558,13,Utility Stunts 
+9990,6,Production Design 
+10153,15,Costume Design 
+10155,15,Sound Re-Recording Mixer 
+10766,11,Editor 
+11034,15,Producer 
+11035,15,Executive Producer 
+11036,15,Art Direction 
+11053,16,Co-Executive Producer 
+11113,13,Second Unit Cinematographer 
+11166,13,Orchestrator 
+11173,18,Creature Design 
+11225,18,Assistant Art Director 
+11298,18,Makeup Artist 
+11301,18,Stunts 
+11412,13,Assistant Art Director 
+11423,5,Art Direction 
+11783,15,Writer 
+11783,15,Editorial Manager 
+12401,11,Producer 
+12912,12,Director of Photography 
+12914,12,Editor 
+13168,18,ADR & Dubbing 
+13930,13,First Assistant Director 
+14040,6,Art Direction 
+14049,13,Stunt Coordinator 
+14511,15,Second Assistant Director 
+15004,13,Co-Producer 
+15004,13,Unit Production Manager 
+15318,13,Stunts 
+15331,14,Sound Effects Editor 
+15893,12,Sound Effects Editor 
+16177,18,Sound Re-Recording Mixer 
+16498,14,Special Effects Coordinator 
+17630,13,Executive In Charge Of Production 
+18095,13,Still Photographer 
+18775,18,Stunt Coordinator 
+19309,14,Set Decoration 
+19353,16,Finance 
+19457,15,Assistant Editor 
+19801,11,Producer 
+20296,18,First Assistant Editor 
+20540,5,Casting Associate 
+20784,6,Executive Producer 
+21198,12,Story 
+22320,18,Sound Engineer 
+22486,13,Property Master 
+23456,18,Sculptor 
+23781,13,Assistant Editor 
+23782,13,Visual Effects Art Director 
+23972,13,Art Direction 
+26986,13,Makeup Artist 
+30012,15,Screenplay 
+30174,15,Executive In Charge Of Production 
+32535,12,Story 
+34101,15,Stunts 
+35760,14,Assistant Art Director 
+37333,5,Co-Producer 
+37334,5,Co-Producer 
+37334,5,Production Manager 
+37335,5,Co-Producer 
+37832,13,Greensman 
+37925,14,Second Unit Cinematographer 
+38022,13,Set Designer 
+40417,16,Stunts 
+40749,18,Script Supervisor 
+41082,13,Leadman 
+42267,13,Sound Re-Recording Mixer 
+42268,13,Visual Effects Producer 
+42268,13,Visual Effects Editor 
+42269,13,Visual Effects Supervisor 
+42283,13,First Assistant Editor 
+42358,13,Post Production Supervisor 
+46589,5,Costume Design 
+47098,14,Thanks 
+50630,16,Producer 
+51689,14,Co-Producer 
+52035,6,Screenplay 
+52035,6,Story 
+55227,13,Production Sound Mixer 
+55228,13,Boom Operator 
+55985,14,First Assistant Editor 
+56270,12,Second Film Editor 
+56791,5,Steadicam Operator 
+57673,12,Casting 
+59983,18,First Assistant Editor 
+61419,12,Casting 
+61747,12,Story 
+62277,5,Costume Design 
+62460,18,Conceptual Design 
+63601,18,Assistant Art Director 
+64315,5,First Assistant Editor 
+64744,5,Unit Production Manager 
+64744,5,Production Supervisor 
+71194,6,Editor 
+71417,6,Producer 
+71901,5,First Assistant Director 
+72753,12,Production Manager 
+73667,14,Second Unit Cinematographer 
+74323,14,Makeup Artist 
+74765,13,Makeup Artist 
+75797,14,ADR Supervisor 
+75803,18,Hairstylist 
+75804,18,Location Manager 
+76590,12,Associate Producer 
+77162,5,Director of Photography 
+80824,5,Sound Editor 
+82169,14,Camera Operator 
+82240,13,Thanks 
+83066,14,Key Hair Stylist 
+91090,18,Sound Recordist 
+91173,14,Researcher 
+103945,15,Post Production Supervisor 
+108146,14,First Assistant Camera 
+120695,14,Music Supervisor 
+122108,15,Makeup Artist 
+129193,14,Choreographer 
+134930,13,Property Master 
+143915,18,Sound Effects Editor 
+144146,5,Key Hair Stylist 
+144848,18,Assistant Director 
+148455,5,First Assistant Camera 
+175037,13,ADR & Dubbing 
+223913,13,Best Boy Electric 
+225975,12,Storyboard 
+231202,12,Supervising Animator 
+237398,13,Visual Effects Editor 
+237920,14,Utility Stunts 
+484529,14,Set Production Assistant 
+548439,18,Foley 
+548439,14,Foley 
+548444,18,Sound Effects Editor 
+548445,14,Foley 
+548446,14,Foley 
+555978,18,Animation Supervisor 
+568911,11,Production Design 
+579430,18,Sound Recordist 
+587903,18,Assistant Director 
+589974,14,Still Photographer 
+943313,18,Assistant Art Director 
+948789,18,Music Supervisor 
+950773,14,ADR & Dubbing 
+957889,13,Production Illustrator 
+978114,18,Boom Operator 
+993536,14,First Assistant Editor 
+1000458,15,Makeup Artist 
+1002623,14,Assistant Director 
+1017376,13,Camera Operator 
+1034754,18,Set Designer 
+1040011,15,Writer 
+1041072,5,Editor 
+1041458,13,Thanks 
+1074103,18,Sound Effects Editor 
+1088307,6,Story 
+1092247,12,Animation Director 
+1096860,14,Standby Painter 
+1106177,16,Cinematography 
+1117347,18,Armorer 
+1117970,15,Writer 
+1120536,5,First Assistant Director 
+1121874,14,Unit Production Manager 
+1122225,12,Temp Music Editor 
+1128252,18,Assistant Director 
+1135904,16,Makeup Artist 
+1140576,12,Animation 
+1150868,16,Assistant Costume Designer 
+1159914,16,Dolby Consultant 
+1177814,18,Second Assistant Director 
+1178899,13,Makeup Artist 
+1181576,14,Electrician 
+1203910,14,Assistant Costume Designer 
+1211220,12,Sculptor 
+1236458,12,Storyboard 
+1249773,18,Makeup Department Head 
+1260745,12,Visual Development 
+1271928,13,CG Supervisor 
+1271932,13,CG Supervisor 
+1271933,13,Unit Publicist 
+1303001,12,Art Direction 
+1313965,16,Production Coordinator 
+1319166,14,Makeup Artist 
+1323768,13,Costume Supervisor 
+1325650,13,Set Designer 
+1327149,13,Makeup Designer 
+1328406,13,Costume Supervisor 
+1334485,14,Sound Effects Editor 
+1335179,18,Art Department Coordinator 
+1335599,16,Assistant Director 
+1335873,12,Visual Development 
+1339462,14,Driver 
+1341851,13,Construction Coordinator 
+1341865,14,Script Supervisor 
+1342654,14,Boom Operator 
+1342669,5,Script Supervisor 
+1343610,15,Assistant Director 
+1345595,14,Sound Re-Recording Mixer 
+1346943,18,Special Effects Supervisor 
+1347938,16,Sound 
+1349080,16,Sound 
+1351726,16,Boom Operator 
+1357671,5,First Assistant Sound Editor 
+1358074,13,Hairstylist 
+1367502,13,Gaffer 
+1367562,18,Still Photographer 
+1368864,18,Sound Re-Recording Mixer 
+1368867,13,Special Effects Supervisor 
+1369442,15,Gaffer 
+1371215,16,Gaffer 
+1374471,16,Still Photographer 
+1374823,16,Line Producer 
+1376514,18,Sound Effects Editor 
+1378222,14,Construction Coordinator 
+1386913,13,Visual Effects 
+1387259,14,Set Costumer 
+1389555,13,Set Designer 
+1391571,14,Sound Re-Recording Mixer 
+1391604,13,Location Manager 
+1392094,18,Digital Effects Supervisor 
+1392895,14,Set Designer 
+1392984,18,Utility Stunts 
+1394002,16,ADR & Dubbing 
+1394306,13,Music Editor 
+1394958,18,First Assistant Director 
+1395016,5,Construction Coordinator 
+1398110,18,Gaffer 
+1398176,14,Set Costumer 
+1399063,14,Visual Effects Supervisor 
+1399116,13,Sound Effects Editor 
+1399316,13,Lighting Technician 
+1399328,13,Transportation Coordinator 
+1400327,16,Additional Editing 
+1400370,18,Visual Effects Editor 
+1400813,13,Dialogue Editor 
+1400905,13,Dialogue Editor 
+1401117,14,Unit Publicist 
+1401374,5,Location Manager 
+1402054,5,Production Coordinator 
+1403412,13,Electrician 
+1403546,13,First Assistant Camera 
+1404213,18,Sound Recordist 
+1404717,18,ADR & Dubbing 
+1404846,14,Visual Effects Producer 
+1405717,18,Sound Effects Editor 
+1406914,18,Hairstylist 
+1407223,18,Hairstylist 
+1407672,18,Steadicam Operator 
+1407812,18,Sound Effects Editor 
+1407901,13,Picture Car Coordinator 
+1408285,14,Rigging Gaffer 
+1408361,18,Best Boy Electric 
+1410954,5,Production Sound Mixer 
+1412188,13,Hair Designer 
+1412227,5,Sound Effects Editor 
+1412702,14,First Assistant Sound Editor 
+1413100,14,Visual Effects Producer 
+1413169,13,Sound Re-Recording Mixer 
+1413169,14,Scoring Mixer 
+1413172,13,ADR & Dubbing 
+1413196,13,Set Costumer 
+1415465,13,Sound Effects Editor 
+1415630,18,Visual Effects Supervisor 
+1415642,5,Music Editor 
+1417399,14,Key Hair Stylist 
+1417413,18,Property Master 
+1419114,13,Dialect Coach 
+1419160,5,Transportation Coordinator 
+1421255,14,Transportation Coordinator 
+1422411,12,Foley Editor 
+1424133,11,Visual Effects 
+1425978,12,Sound Re-Recording Mixer 
+1427298,18,Assistant Director 
+1434225,13,Script Supervisor 
+1434638,18,Makeup Artist 
+1435755,15,Color Timer 
+1438399,13,Dialogue Editor 
+1438571,5,Supervising Sound Editor 
+1440801,18,Construction Coordinator 
+1440806,18,Construction Coordinator 
+1440811,18,Sound Recordist 
+1440822,18,Sound Designer 
+1440843,18,Sequence Supervisor 
+1440844,18,Sequence Supervisor 
+1440847,18,Sequence Supervisor 
+1440848,18,Sequence Supervisor 
+1440849,18,Sequence Supervisor 
+1440850,18,Second Unit Cinematographer 
+1440852,18,Rigging Gaffer 
+1440853,18,First Assistant Editor 
+1440854,18,Location Manager 
+1444908,14,Hairstylist 
+1445885,14,Visual Effects Supervisor 
+1446663,18,Grip 
+1446985,13,Hairstylist 
+1446986,13,Hairstylist 
+1446987,13,Art Department Coordinator 
+1446988,13,Art Department Coordinator 
+1446989,13,Assistant Art Director 
+1446990,13,Greensman 
+1446991,13,Greensman 
+1446992,13,Greensman 
+1446993,13,Leadman 
+1446994,13,Leadman 
+1446995,13,Set Designer 
+1446996,13,Foley 
+1447007,13,Set Costumer 
+1447008,13,Set Costumer 
+1447009,13,Choreographer 
+1447010,13,Location Manager 
+1447011,13,Location Manager 
+1451236,12,Visual Development 
+1454536,14,Dialogue Editor 
+1455294,14,Costume Supervisor 
+1456365,18,Makeup Artist 
+1457647,12,Story 
+1457833,14,Script Supervisor 
+1465667,18,Hairstylist 
+1468620,16,Hairstylist 
+1468621,16,Hairstylist 
+1468622,16,Makeup Artist 
+1468623,16,Unit Publicist 
+1471947,18,First Assistant Director 
+1472642,6,Associate Producer 
+1477006,13,Post Production Supervisor 
+1478848,14,Art Department Coordinator 
+1498452,6,Associate Producer 
+1512798,18,Assistant Director 
+1516156,12,Second Film Editor 
+1516157,12,CG Painter 
+1521392,13,Special Effects 
+1530090,14,Assistant Director 
+1530899,15,Production Manager 
+1534970,14,Painter 
+1536572,18,Carpenter 
+1542396,16,Unit Production Manager 
+1542397,16,Unit Production Manager 
+1542854,16,Property Master 
+1542896,16,Dialogue Editor 
+1542911,16,Electrician 
+1542915,16,Electrician 
+1542916,16,Post Production Assistant 
+1542917,16,Color Timer 
+1543045,16,Legal Services 
+1546177,18,Standby Painter 
+1547239,5,Costume Supervisor 
+1547899,15,Still Photographer 
+1549015,5,Construction Foreman 
+1549209,14,Orchestrator 
+1549209,12,Orchestrator 
+1550617,14,Rigging Grip 
+1550618,14,Camera Operator 
+1550619,14,Music Editor 
+1550730,13,Color Timer 
+1551222,14,Production Sound Mixer 
+1551515,18,Digital Compositors 
+1551985,18,3D Coordinator 
+1552012,5,Property Master 
+1552012,14,Property Master 
+1552088,5,Special Sound Effects 
+1552188,14,Color Timer 
+1552346,13,Assistant Costume Designer 
+1552873,12,Color Timer 
+1554975,13,Executive Music Producer 
+1555028,13,Additional Photography 
+1555639,13,Transportation Captain 
+1556611,12,Camera Technician 
+1556615,12,Production Office Assistant 
+1556629,12,Editorial Production Assistant 
+1556631,12,Production Accountant 
+1556632,12,ADR Editor 
+1556634,12,Sound Editor 
+1556635,12,Photoscience Manager 
+1556647,12,Editorial Coordinator 
+1556697,5,Art Department Coordinator 
+1557497,14,3D Artist 
+1558210,14,Production Controller 
+1564233,5,Color Timer 
+1568649,14,Additional Camera 
+1569847,14,Visual Effects Coordinator 
+1579408,14,Set Dressing Artist 
+1583007,15,Supervising Sound Editor 
+1585014,14,24 Frame Playback 
+1585196,14,Visual Effects Editor 
+1586927,14,Post Production Assistant 
+1586941,14,Production Accountant 
+1591577,18,Video Assist Operator 
+1595472,14,Projection 
+1601800,5,Best Boy Electric 
+1602889,5,Special Effects Coordinator 
+1608539,18,Painter 
+1614896,14,Stunt Coordinator 
+1622121,5,Unit Publicist 
+1623548,12,Character Designer 
+1630675,18,Color Timer 
+1633954,13,Projection 
+1651183,14,Greensman 
+1686379,5,Driver 
+1695796,5,Boom Operator 
+1700803,18,Storyboard 
+1708344,5,Key Grip 
+1711831,12,CG Supervisor 
+1719095,12,Fix Animator 
+1722105,15,Casting 
+1733276,15,Researcher 
+1733277,15,Still Photographer 
+1735467,18,Production Controller 
+1742751,12,Camera Technician 
+1745153,5,Hairstylist 
+1748698,12,Supervising Technical Director 
+1753763,14,Key Grip 
+1753765,14,Craft Service 
+1753766,14,Loader 
+1753767,14,Propmaker 
+1753769,14,Stand In 
+1753770,14,Transportation Captain 
+1753774,14,Editorial Production Assistant 
+1753775,14,Location Manager 
+1753782,14,Digital Compositors 
+1756520,13,Assistant Sound Editor 
+1759722,12,Visual Development 
+1767303,13,Grip 
+1770919,13,Carpenter 
+1821634,18,Third Assistant Director 
+1830788,12,CG Supervisor 
+1830790,12,CG Supervisor 
+1830791,12,CG Supervisor 
+1830793,12,CG Supervisor 
+1830810,12,Visual Development 
+1848824,13,Driver 
+1851724,5,Carpenter 
+1851725,5,Painter 
+1857469,18,Hairstylist 
+1857475,18,Third Assistant Director 
+1857476,18,Third Assistant Director 
+1857478,18,Second Assistant Director 
+1857480,18,Assistant Director 
+1877352,5,Lead Painter 
+1877353,5,Standby Painter 
+1877355,5,Grip 
+1877356,5,Costume Supervisor 
+1877357,5,Makeup Artist 
+1877359,5,Choreographer 
+1877360,5,Craft Service 
+1877361,5,Post Production Assistant 
+1877361,5,Set Production Assistant 
+1877363,5,Security 
+1877365,5,Set Medic 
+1877369,5,Stand In 
+1877370,5,Transportation Captain 
+1877377,5,First Assistant Editor 
+1877378,5,Electrician 
+1877379,5,Gaffer 
+1877380,5,Production Accountant 
+1877413,5,Foley 
+1881561,18,Production Illustrator 
+1881562,18,First Assistant Camera 
+1881563,18,Key Grip 
+1881564,18,Costume Supervisor 
+1881565,18,Projection 
+1881566,18,Propmaker 
+1881567,18,Stand In 
+1881568,18,Electrician 
+1881569,18,Lighting Technician 
+1881570,18,Production Accountant 
+1881571,18,Production Coordinator 
+1881683,13,Craft Service 
+1890864,13,Sound Mixer 
+1896807,13,Construction Foreman 
+1896808,13,Location Scout 
+1896809,13,Painter 
+1896811,13,Seamstress 
+1896812,13,Set Dressing Artist 
+1896814,13,Loader 
+1896817,13,Transportation Co-Captain 
+1896821,13,Rigging Grip 
+1896822,13,Casting Associate 
+1896825,13,Production Accountant 
+,5,
+,13,
+,18,
+,16,
+,12,
