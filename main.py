@@ -82,7 +82,7 @@ def redo_database():
         c.execute("CREATE DATABASE IF NOT EXISTS netflix")
 
         # create tables
-        # print("making tables")
+        print("making tables")
         executeSQL(scripts + 'Create Tables v4.sql')
 
 
@@ -109,7 +109,7 @@ def redo_database():
         execution_time = end_time - start_time
         print(f"Done! Time taken: {execution_time:.6f} seconds")
 
-# tabulates result, a resulting sql query
+# tabulates result, a resulting sql query. Consumes a SQL query result
 def print_table(table_data):
     table_headers = [col[0] for col in c.description]
     table_data = list(map(cut_and_wrap, table_data))
@@ -264,13 +264,16 @@ def search_genre():
     # else print table
     print_table(result)
 
+# search credited person and the movies they are featured in
 def search_credited_person():
-    person = input("Search person name fuzzy (exits if no input):")
+    person = input("Search person name fuzzy (exits if no input):") #user input
 
+    # exit if no input detected
     if person.strip() == "":
         print("no input detected, exiting...")
         return
 
+    #query
     query = '''
         SELECT m.title as 'Featured Title'
         FROM movie m
@@ -279,13 +282,16 @@ def search_credited_person():
         WHERE cr.name LIKE %s
         LIMIT 30;
         '''
+    # run query
     c.execute(query, ('%' + person + '%',))
     result = c.fetchall()
 
+    # exit if no movies found
     if not result:
         print("No movie(s) found...")
         return
     
+    # print output
     print_table(result)
 
 # sample search function. Returns movie ID in a table
@@ -362,9 +368,11 @@ def move_data_full():
 
         '''
     
+    # run all queries, and print them out
     c.execute(test_query, (movie_id,))
     test_result = c.fetchall()
 
+    # exit if movie not found
     if not test_result:
         print("Movie not found...")
         return
@@ -394,13 +402,16 @@ def move_data_full():
 # R7 Functions
 # -----------------------------------
 
+# search productions fuzzy
 def search_production():
     production = input("Input production Query (no input exits):")
 
+    # exit if no input
     if production.strip() == "":
         print("no input detected, exiting...")
         return
 
+    #query
     query = '''
         SELECT m.movie_id, m.title, p.production_name
         FROM movie m
@@ -410,19 +421,23 @@ def search_production():
         ORDER BY p.production_name, m.movie_id, m.release_date DESC
         LIMIT 30
         '''
+
+    # run query
     c.execute(query, ('%' + production + '%',))
     result = c.fetchall()
 
+    #exit if no movie found
     if not result:
         print("No Movie(s) found...")
         return
 
-    print_table(result)
+    print_table(result) #print table
 
 # -----------------------------------
 # R8 Functions
 # -----------------------------------
 
+# function for updating attributes of a movie
 def update_movie():
     # get movie id to edit
     movie_id = input("Input movie ID:")
@@ -439,7 +454,7 @@ def update_movie():
         print("Movie not found, exiting...")
         return
 
-    print_table(result)
+    print_table(result) # print attributes
 
     # print summary
     query = "SELECT overview from movie where movie_id = %s"
@@ -460,9 +475,11 @@ def update_movie():
     print("7: video")
     print("8: Runtime")
     print("9: Exit to previous menu")
-    user = input("Select movie_attribute to edit (Default 9): ")
+    user = input("Select movie_attribute to edit (Default 9): ") #user input for attribute editing
 
-    #movie id
+    # if statements below are for editing each respective attribute
+
+    # movie id
     if user == "1":
         print("Type nothing and press enter to cancel")
         new_movie_id = input("Input new movie ID (non-negative int, exits on no input): ")
@@ -709,6 +726,8 @@ def update_movie():
 # -----------------------------------
 # R9 Functions
 # -----------------------------------
+
+# returns best rated crew members
 def success_rate_per_crew():
 
     # setting to let query run
@@ -764,7 +783,7 @@ genre_mapping = {
 }
 
 # R10 main function
-# 
+# returns best production studios from a given genre
 def best_production_studios():
     # print genres and get ID from user
     print(genre_list_print)
@@ -976,10 +995,14 @@ def Stats():
             clear_terminal()
             return
 
+boot = True
+
 # main menu
 def menu():
     while True:
-        clear_terminal()
+        if boot == True:
+            clear_terminal()
+            boot = False
         print("1 (R6): Searching and metadata")
         print("2 (R7): search productions")
         print("3 (R8): Edit Movie Details")
