@@ -30,6 +30,7 @@ CREATE TABLE Credit (
 
 ALTER TABLE Credit ADD CONSTRAINT person_id CHECK (person_id >= 0);
 
+-- Subclass of Credit
 CREATE TABLE Cast (
 	cast_id INT NOT NULL,
     movie_id INT NOT NULL,
@@ -45,6 +46,7 @@ CREATE TABLE Cast (
 	PRIMARY KEY(cast_id, person_id)
 );
 
+-- Subclass of Credit
 CREATE TABLE Crew (
 	person_id INT NOT NULL,
     FOREIGN KEY (person_id) REFERENCES Credit (person_id)
@@ -53,16 +55,19 @@ CREATE TABLE Crew (
 	PRIMARY KEY(person_id)
 );
 
+-- New Entity
 CREATE TABLE Department(
 	Dept_Name Varchar(50) UNIQUE,
     PRIMARY KEY(Dept_Name)
 );
 
+-- New Entity
 CREATE TABLE Job(
 	Job_Name Varchar(50) UNIQUE,
     PRIMARY KEY(Job_Name)
 );
 
+-- M:N for Crew and Job
 CREATE TABLE Performs (
 	Job_Name Varchar(50),
 	person_id INT NOT NULL,
@@ -79,6 +84,7 @@ CREATE TABLE Performs (
 	PRIMARY KEY(Job_Name, person_id, movie_id)
 );
 
+-- M:N for Crew and Department
 CREATE TABLE Assigned_To (
 	Dept_Name Varchar(50),
 	person_id INT NOT NULL,
@@ -107,6 +113,7 @@ CREATE TABLE Genre (
 	PRIMARY KEY(genre_id)
 );
 
+-- M:N for Movie and Production
 CREATE TABLE Produced_By (
 	movie_id INT NOT NULL,
     production_id INT NOT NULL,
@@ -119,6 +126,7 @@ CREATE TABLE Produced_By (
 	PRIMARY KEY(movie_id, production_id)
 );
 
+-- M:N for Movie and Genre
 CREATE TABLE Classified_In (
 	movie_id INT NOT NULL,
 	genre_id INT NOT NULL,
@@ -131,6 +139,7 @@ CREATE TABLE Classified_In (
 	PRIMARY KEY(movie_id, genre_id)
 );
 
+-- M:N for Movie and Credit
 CREATE TABLE Comprises_Of (
 	movie_id INT NOT NULL,
 	person_id INT NOT NULL,
