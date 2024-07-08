@@ -125,12 +125,14 @@ def print_table(table_data):
 
 # sample search function. Returns movie ID in a table
 def search_title():
-    search = input("Input search Query:")
-    search = "'%" + search + "%'"
-    query = "SELECT title, movie_id from movie where title like " + search
-    c.execute(query)
-    result = c.fetchall()
+    search = input("Input search Query:") #user input
 
+    # query
+    query = "SELECT title, movie_id from movie where title like %s ORDER BY title LIMIT 30"
+
+    # run and print query
+    c.execute(query, ('%' + search + '%',))
+    result = c.fetchall()
     print_table(result)
 
 # takes string and prints new lines if string is too long
@@ -188,41 +190,59 @@ combined_list = []
 for (id1, name1), (id2, name2) in zip(first_half, second_half):
     combined_list.append([id1, name1, id2, name2])
 
-genre_list_print = tabulate(combined_list, headers=["Genre ID", "Genre Name", "Genre ID", "Genre Name"], tablefmt="grid") # Print the table
+genre_list_print = tabulate(combined_list, headers=["Genre ID", "Genre Name", "Genre ID", "Genre Name"], tablefmt="grid") # Print the table of genres
 
-# search movies with specific genres
+# given a string selection (potentially separated by commas), search up and return genre names from genre_dict as a list
 def select_genre(genre_numbers_str, genre_dict):
-    # Check if the input string is empty
+        # Check if the input string is empty
     if not genre_numbers_str.strip():
         return []
 
     # Split the input string by commas and strip any extra spaces
-    genre_numbers = [int(num.strip()) for num in genre_numbers_str.split(',')]
+    genre_numbers_str_list = genre_numbers_str.split(',')
+    
+    genre_numbers = []
+
+    # check if all separated strings are integers
+    for num_str in genre_numbers_str_list:
+        num_str = num_str.strip()
+        if num_str:
+            try:
+                genre_numbers.append(int(num_str))
+            except ValueError:
+                print(f"Error: '{num_str}' is not a valid integer. Exiting...")
+                return []
 
     # Look up the genre names using the genre_dict
     genre_names = [genre_dict[num] for num in genre_numbers if num in genre_dict]
-    
+
     return genre_names
 
+# takes a list of genre names and formats them properly for use in a sql query
 def format_genre_query(genre_names):
     # Join the genre names into a single string formatted for SQL
     return ', '.join(f"'{genre}'" for genre in genre_names)
 
 # main genre search function
 def search_genre():
-    print(genre_list_print)
-    print("Select the following genres you would like to search (search multiple, separated by commas:")
-    print("Example: 6,9 --> action, western")
-    genres = input("Selection:")
 
+    # select genre
+    print(genre_list_print)
+    print("Select the following genres you would like to search (search multiple, separated by commas. Ignores non valid selections):")
+    print("Example: 6,9 --> action, western")
+    genres = input("Selection:") #user input
+
+    # get formatted genre names for query
     genre_names = select_genre(genres, genre_dict)
     formated_genres = format_genre_query(genre_names)
 
+    # exit if nothing is entered, or is not properly formatted
     if not formated_genres:
         print("Invalid entry detected (most likely genre ID not found)")
         return
 
     print("Movies with genres:" + formated_genres)
+    #query
     query = '''
         SELECT DISTINCT m.title , m.vote_average
         FROM movie m 
@@ -230,27 +250,36 @@ def search_genre():
         JOIN genre g ON c.genre_id = g.genre_id 
         WHERE g.genre_name IN (''' + formated_genres + ''')
         ORDER BY vote_average
-        DESC LIMIT 10;'''
-    #c.execute(query, (formated_genres,))
+        DESC LIMIT 20;'''
+    
+    # run query
     c.execute(query)
     result = c.fetchall()
 
+    # if no movies found, exit
     if not result:
         print("No movie(s) found...")
         return
 
+    # else print table
     print_table(result)
 
 def search_credited_person():
-    person = input("Search person name:")
+    person = input("Search person name fuzzy (exits if no input):")
+
+    if person.strip() == "":
+        print("no input detected, exiting...")
+        return
+
     query = '''
         SELECT m.title as 'Featured Title'
         FROM movie m
         JOIN Comprises_Of c ON m.movie_id = c.movie_id
         JOIN credit cr ON c.person_id = cr.person_id
-        WHERE cr.name LIKE '%''' + person + '''%';
+        WHERE cr.name LIKE %s
+        LIMIT 30;
         '''
-    c.execute(query)
+    c.execute(query, ('%' + person + '%',))
     result = c.fetchall()
 
     if not result:
@@ -261,24 +290,25 @@ def search_credited_person():
 
 # sample search function. Returns movie ID in a table
 def movie_data_simple():
-    movie_id = input("Input movie ID:")
+    movie_id = input("Input movie ID:") # get user input
 
+    # get movie ID info
     query = '''
-        SELECT title as Title, vote_average as "Average Rating", status as Status, runtime as "Runtime (Minutes)", adult as "R Rated?", vote_average as "Avg. Rating", vote_count as "Rating count"
+        SELECT title as Title, vote_average as "Average Rating", release_date as "Release date", status as Status, runtime as "Runtime (Minutes)", adult as "R Rated?", vote_average as "Avg. Rating", vote_count as "Rating count"
         from movie 
         where movie_id = %s'''
     c.execute(query, (movie_id,))
     result = c.fetchall()
 
+    # if nothing is selected (i.e., movie id is not found), exit
     if not result:
         print("No movie found...")
         return
 
-    #print(result)
-
+    # print result
     print_table(result)
 
-    # print summary
+    # print movie summary
     query = "SELECT overview from movie where movie_id = %s"
     c.execute(query, (movie_id,))
     summary = c.fetchall()
@@ -365,16 +395,22 @@ def move_data_full():
 # -----------------------------------
 
 def search_production():
-    production = input("Input production Query:")
+    production = input("Input production Query (no input exits):")
+
+    if production.strip() == "":
+        print("no input detected, exiting...")
+        return
+
     query = '''
         SELECT m.movie_id, m.title, p.production_name
         FROM movie m
         JOIN Produced_By c ON m.movie_id = c.movie_id
         JOIN Production p ON c.production_id = p.production_id
-        WHERE production_name LIKE '%'''+ production + '''%'
-        ORDER BY p.production_name, m.movie_id, m.release_date DESC;
+        WHERE production_name LIKE %s
+        ORDER BY p.production_name, m.movie_id, m.release_date DESC
+        LIMIT 30
         '''
-    c.execute(query)
+    c.execute(query, ('%' + production + '%',))
     result = c.fetchall()
 
     if not result:
@@ -400,7 +436,7 @@ def update_movie():
 
     # quit if no movie found
     if not result:
-        print("Movie not found...")
+        print("Movie not found, exiting...")
         return
 
     print_table(result)
@@ -429,14 +465,16 @@ def update_movie():
     #movie id
     if user == "1":
         print("Type nothing and press enter to cancel")
-        new_movie_id = input("Input new movie ID (non-negative int): ")
+        new_movie_id = input("Input new movie ID (non-negative int, exits on no input): ")
         if not new_movie_id.strip():
             clear_terminal()
+            print("No input detected, exiting...")
             return
 
         # check if new movie id is non-negative int
-        if not new_movie_id.isdigit() or new_movie_id.isdigit() < 0:
-            print("Invalid input, must be non-negative integer")
+        if not new_movie_id.isdigit() or new_movie_id.isdigit() < 0 or new_movie_id.strip() == "":
+            clear_terminal()
+            print("Invalid input, must be non-negative integer, exiting...")
             return
         
         # check if new movie_id already exists as a movie
@@ -449,7 +487,8 @@ def update_movie():
         check_result = c.fetchall()
 
         if check_result:
-            print("Movie ID already exists")
+            clear_terminal()
+            print("Movie ID already exists, exiting...")
             return
 
         query = '''
@@ -468,6 +507,7 @@ def update_movie():
         new_title = input("Input new movie title: ")
         if not new_title.strip():
             clear_terminal()
+            print("No input detected, exiting...")
             return
         
         query = '''
@@ -484,9 +524,6 @@ def update_movie():
     elif user == "3":
         print("Type nothing and press enter to cancel")
         new_overview = input("Input new overview: ")
-        if not new_overview.strip():
-            clear_terminal()
-            return
         
         query = '''
             UPDATE movie
@@ -524,15 +561,15 @@ def update_movie():
             if choice in options:
                 new_status = options[choice]
             else:
-                print("Invalid input, exiting...")
                 clear_terminal()
+                print("Invalid input, exiting...")
                 return
         except ValueError:
-            print("Invalid input, exiting...")
             clear_terminal()
+            print("Invalid input, exiting...")
             return
 
-        
+        print(new_status)
         query = '''
             UPDATE movie
             set status = %s
@@ -549,14 +586,15 @@ def update_movie():
         new_date = input("Input new overview (yyyy-mm-dd format): ")
         if not new_date.strip():
             clear_terminal()
+            print("Invalid date format, exiting...")
             return
         
         try:
             datetime.strptime(new_date, "%Y-%m-%d")
             print("Valid Date")
         except ValueError:
-            print("Invalid date format, exiting...")
             clear_terminal()
+            print("Invalid date format, exiting...")
             return
         
         query = '''
@@ -587,12 +625,12 @@ def update_movie():
             if choice in options:
                 new_adult = options[choice]
             else:
-                print("Invalid input, exiting...")
                 clear_terminal()
+                print("Invalid input, exiting...")
                 return
         except ValueError:
-            print("Invalid input, exiting...")
             clear_terminal()
+            print("Invalid input, exiting...")
             return
         
         query = '''
@@ -623,12 +661,12 @@ def update_movie():
             if choice in options:
                 new_video = options[choice]
             else:
-                print("Invalid input, exiting...")
                 clear_terminal()
+                print("Invalid input, exiting...")
                 return
         except ValueError:
-            print("Invalid input, exiting...")
             clear_terminal()
+            print("Invalid input, exiting...")
             return
         
         query = '''
@@ -647,11 +685,13 @@ def update_movie():
         new_runtime = input("Input new runtime, in minutes (non-negative int): ")
         if not new_runtime.strip():
             clear_terminal()
+            print("No input detected, exiting...")
             return
 
         # check if new movie id is non-negative int
         if not new_runtime.isdigit() or new_runtime.isdigit() < 0:
-            print("Invalid input, must be non-negative integer")
+            clear_terminal()
+            print("Invalid input, must be non-negative integer, exiting...")
             return
 
         query = '''
@@ -667,30 +707,134 @@ def update_movie():
         return
 
 # -----------------------------------
+# R9 Functions
+# -----------------------------------
+def success_rate_per_crew():
+
+    # setting to let query run
+    set_query = "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));"
+
+    # actual query
+    query = """
+        SELECT cr.name as Name, j.Job_Name as Job, AVG(m.vote_average) AS "Avg. Rating"
+        FROM Movie m 
+        JOIN Classified_In ci ON m.movie_id = ci.movie_id 
+        JOIN Genre g ON ci.genre_id = g.genre_id 
+        JOIN Performs p ON p.movie_id = m.movie_id 
+        JOIN Crew c ON p.person_id = c.person_id 
+        JOIN Job j ON p.Job_Name = j.Job_Name 
+        JOIN Credit cr ON c.person_id = cr.person_id
+        GROUP BY cr.name
+        ORDER BY "Avg. Rating" DESC
+        LIMIT 20;
+       """
+    c.execute(set_query)
+    c.execute(query)
+    result = c.fetchall()
+
+    print_table(result)
+
+
+# -----------------------------------
+# R10 Functions
+# -----------------------------------
+
+# map genres to IDs for conversion and query
+genre_mapping = {
+    1: 12,   # Adventure
+    2: 14,   # Fantasy
+    3: 16,   # Animation
+    4: 18,   # Drama
+    5: 27,   # Horror
+    6: 28,   # Action
+    7: 35,   # Comedy
+    8: 36,   # History
+    9: 37,   # Western
+    10: 53,  # Thriller
+    11: 80,  # Crime
+    12: 99,  # Documentary
+    13: 878, # Science Fiction
+    14: 9648,# Mystery
+    15: 10402,# Music
+    16: 10749,# Romance
+    17: 10751,# Family
+    18: 10752,# War
+    19: 10769,# Foreign
+    20: 10770 # TV Movie
+}
+
+# R10 main function
+# 
+def best_production_studios():
+    # print genres and get ID from user
+    print(genre_list_print)
+    genre_id = input("Select a genre: ")
+
+    # convert choice to int and check if valid, else exit
+    try:
+        choice = int(genre_id)
+        if choice in genre_mapping:
+            #print(f"The genre ID for your selection is: {genre_mapping[choice]}")
+            choice = genre_mapping[choice]
+        else:
+            print("Invalid input, exiting...")
+            return
+    except ValueError:
+        print("Invalid input, exiting...")
+        return
+
+    # query
+    query = """
+        SELECT p.production_name, AVG(m.vote_average) AS vote_score  
+        FROM Movie m 
+        JOIN Classified_In ci ON m.movie_id = ci.movie_id 
+        JOIN Genre g ON ci.genre_id = g.genre_id 
+        JOIN Produced_By pb ON m.movie_id = pb.movie_id 
+        JOIN Production p ON pb.production_id = p.production_id 
+        WHERE g.genre_id = %s
+        GROUP BY p.production_name ORDER BY vote_score DESC
+        LIMIT 20;
+        """
+    
+    #execute query and print table
+    c.execute(query, (choice,))
+    result = c.fetchall()
+
+    print_table(result)
+
+# -----------------------------------
 # R11 Functions
 # -----------------------------------
 
+# counts the number of movies that each genre has
 def genre_count():
+    # query
     query = '''
         SELECT g.genre_name as Genre, COUNT(*) AS "Movie Count" 
         FROM genre g
         JOIN Classified_In c ON g.genre_id = c.genre_id 
         GROUP BY g.genre_name 
-        ORDER BY movie_count DESC
+        ORDER BY "Movie Count" DESC
         LIMIT 10
         '''
+    
+    # run and print query result
     c.execute(query)
     result = c.fetchall()
     print_table(result)
 
+# averages ratings for each respective genre
 def best_genre():
+    # query
     query = '''
         SELECT g.genre_name as Genre, ROUND(AVG(m.vote_average), 2) AS "Avg. Rating"
         FROM genre g JOIN Classified_In c ON g.genre_id = c.genre_id
         JOIN movie m ON c.movie_id = m.movie_id
         GROUP BY g.genre_name
-        ORDER BY average_rating DESC;
+        ORDER BY "Avg. Rating" DESC;
         '''
+    
+    # run and print query result
     c.execute(query)
     result = c.fetchall()
     print_table(result)
@@ -699,18 +843,24 @@ def best_genre():
 # Connecting to DB
 # -----------------------------------
 
+# check if credentials are saved to log into db
+
+# init variables
 save = ""
 username = ""
+creds_saved = ""
 
-# grab creds
+# read credentials files
 with open(cwd + "\\scripts\\creds\\user.txt") as f:
     username = f.read()
 
 with open(cwd + "\\scripts\\creds\\pw.txt") as f:
     pw = f.read()
 
-creds_saved = ""
 
+# check if creds files are empty:
+# if either are empty, prompt user to log in.
+# else, prompt user if they want to log in with previous credentials
 if len(username) == 0 or len(pw) == 0:
     creds_saved = False
     print("No saved credentials found")
@@ -721,6 +871,7 @@ else:
     else:
         creds_saved = True
 
+# no credentials found, prompt user to log in (and if they want to save credentials)
 if not creds_saved:
     username = input("Enter DB Username: ")
     pw = getpass(prompt="Enter DB Password: ")
@@ -743,11 +894,17 @@ netflixdb = mysql.connector.connect(
 
 # connect cursor to db to execute queries
 c = netflixdb.cursor()
-redo_database()
+redo_database() #create tables and load tables with csvs.
 
 # -----------------------------------
 # Menu Nav
 # -----------------------------------
+
+# these functions are for individual sub-menus
+# each involve options to run specific functions, related to the sub menu
+# some sub-menus are specifically the featured function, whilst one (stats) contains
+# multiple features related to statistics
+
 
 def R6():
     clear_terminal()
@@ -797,17 +954,24 @@ def R8():
         else:
             return
 
-def R11():
+def Stats():
+    clear_terminal()
     while True:
-        print("1: Popular Genres")
-        print("2: Most successful Genres")
-        print("3: Exit to previous menu")
-        user = input("Select option (Default 3): ")
+        print("1 (R11): Popular Genres")
+        print("2 (R11): Most successful Genres")
+        print("3 (R9): Average rating per crew member")
+        print("4 (R10): Best production studios per genre")
+        print("5: Exit to previous menu")
+        user = input("Select option (Default 5): ")
 
         if user == "1":
             genre_count()
         elif user == "2":
             best_genre()
+        elif user == "3":
+            success_rate_per_crew()
+        elif user == "4":
+            best_production_studios()
         else:
             clear_terminal()
             return
@@ -819,7 +983,7 @@ def menu():
         print("1 (R6): Searching and metadata")
         print("2 (R7): search productions")
         print("3 (R8): Edit Movie Details")
-        print("4 (R11): Get statistics")
+        print("4 (R9, R10, R11): Get statistics")
         print("5: Remake database")
         print("6: Exit")
         user = input("Select option (default 6): ")
@@ -830,7 +994,7 @@ def menu():
         elif user == "3":
             R8()
         elif user == "4":
-            R11()
+            Stats()
         elif user == "5":
             redo_database()
         else:
