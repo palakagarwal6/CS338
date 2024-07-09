@@ -1,5 +1,6 @@
 import mysql.connector
 from mysql.connector import OperationalError
+from mysql.connector import Error
 import os
 from getpass4 import getpass
 import shutil
@@ -82,7 +83,7 @@ def redo_database():
         c.execute("CREATE DATABASE IF NOT EXISTS netflix")
 
         # create tables
-        print("making tables")
+        # print("making tables")
         executeSQL(scripts + 'Create Tables v4.sql')
 
 
@@ -109,7 +110,7 @@ def redo_database():
         execution_time = end_time - start_time
         print(f"Done! Time taken: {execution_time:.6f} seconds")
 
-# tabulates result, a resulting sql query. Consumes a SQL query result
+# tabulates result, a resulting sql query
 def print_table(table_data):
     table_headers = [col[0] for col in c.description]
     table_data = list(map(cut_and_wrap, table_data))
@@ -264,16 +265,13 @@ def search_genre():
     # else print table
     print_table(result)
 
-# search credited person and the movies they are featured in
 def search_credited_person():
-    person = input("Search person name fuzzy (exits if no input):") #user input
+    person = input("Search person name fuzzy (exits if no input):")
 
-    # exit if no input detected
     if person.strip() == "":
         print("no input detected, exiting...")
         return
 
-    #query
     query = '''
         SELECT m.title as 'Featured Title'
         FROM movie m
@@ -282,16 +280,13 @@ def search_credited_person():
         WHERE cr.name LIKE %s
         LIMIT 30;
         '''
-    # run query
     c.execute(query, ('%' + person + '%',))
     result = c.fetchall()
 
-    # exit if no movies found
     if not result:
         print("No movie(s) found...")
         return
     
-    # print output
     print_table(result)
 
 # sample search function. Returns movie ID in a table
@@ -300,7 +295,7 @@ def movie_data_simple():
 
     # get movie ID info
     query = '''
-        SELECT title as Title, vote_average as "Average Rating", release_date as "Release date", status as Status, runtime as "Runtime (Minutes)", adult as "R Rated?", vote_average as "Avg. Rating", vote_count as "Rating count"
+        SELECT title as Title, release_date as "Release date", status as Status, runtime as "Runtime (Minutes)", adult as "R Rated?", vote_average as "Avg. Rating", vote_count as "Rating count"
         from movie 
         where movie_id = %s'''
     c.execute(query, (movie_id,))
@@ -368,11 +363,9 @@ def move_data_full():
 
         '''
     
-    # run all queries, and print them out
     c.execute(test_query, (movie_id,))
     test_result = c.fetchall()
 
-    # exit if movie not found
     if not test_result:
         print("Movie not found...")
         return
@@ -402,16 +395,13 @@ def move_data_full():
 # R7 Functions
 # -----------------------------------
 
-# search productions fuzzy
 def search_production():
     production = input("Input production Query (no input exits):")
 
-    # exit if no input
     if production.strip() == "":
         print("no input detected, exiting...")
         return
 
-    #query
     query = '''
         SELECT m.movie_id, m.title, p.production_name
         FROM movie m
@@ -421,23 +411,19 @@ def search_production():
         ORDER BY p.production_name, m.movie_id, m.release_date DESC
         LIMIT 30
         '''
-
-    # run query
     c.execute(query, ('%' + production + '%',))
     result = c.fetchall()
 
-    #exit if no movie found
     if not result:
         print("No Movie(s) found...")
         return
 
-    print_table(result) #print table
+    print_table(result)
 
 # -----------------------------------
 # R8 Functions
 # -----------------------------------
 
-# function for updating attributes of a movie
 def update_movie():
     # get movie id to edit
     movie_id = input("Input movie ID:")
@@ -454,7 +440,7 @@ def update_movie():
         print("Movie not found, exiting...")
         return
 
-    print_table(result) # print attributes
+    print_table(result)
 
     # print summary
     query = "SELECT overview from movie where movie_id = %s"
@@ -475,11 +461,9 @@ def update_movie():
     print("7: video")
     print("8: Runtime")
     print("9: Exit to previous menu")
-    user = input("Select movie_attribute to edit (Default 9): ") #user input for attribute editing
+    user = input("Select movie_attribute to edit (Default 9): ")
 
-    # if statements below are for editing each respective attribute
-
-    # movie id
+    #movie id
     if user == "1":
         print("Type nothing and press enter to cancel")
         new_movie_id = input("Input new movie ID (non-negative int, exits on no input): ")
@@ -498,7 +482,7 @@ def update_movie():
         check_unique_id = '''
             SELECT *
             FROM movie
-            where id = %s
+            where movie_id = %s
             '''
         c.execute(query, (new_movie_id,))
         check_result = c.fetchall()
@@ -572,7 +556,7 @@ def update_movie():
         print("6: Canceled")
         print("7: Exit")
         
-        new_status = input("Select new overview (default 7): ")
+        new_status = input("Select new status (default 7): ")
         try:
             choice = int(new_status)
             if choice in options:
@@ -723,11 +707,219 @@ def update_movie():
     else:
         return
 
+
+# insert movie
+def insert_movie():
+    # get new movie attributes
+
+    # movie id
+    movie_id = input("Enter movie_id: ")
+
+    # check if nothing was inputed
+    if not movie_id.strip():
+            clear_terminal()
+            print("No input detected, exiting...")
+            return
+
+    # check if new movie id is non-negative int
+    if not movie_id.isdigit() or movie_id.isdigit() < 0 or movie_id.strip() == "":
+        clear_terminal()
+        print("Invalid input, must be non-negative integer, exiting...")
+        return
+    
+    # check if new movie_id already exists as a movie
+    check_unique_id = '''
+        SELECT *
+        FROM movie
+        where movie_id = %s
+        '''
+    c.execute(check_unique_id, (movie_id,))
+    check_result = c.fetchall()
+    
+    if check_result:
+        clear_terminal()
+        print("Movie ID already exists, exiting...")
+        return
+
+
+
+    # get title
+    title = input("Enter Title: ")
+
+    if not title.strip():
+            clear_terminal()
+            print("No input detected, exiting...")
+            return
+
+
+    # get overview
+    overview = input("Enter overview: ")
+
+    if not overview.strip():
+            clear_terminal()
+            print("No input detected, exiting...")
+            return
+
+    # get status
+    options = {
+            1: "Rumored",
+            2: "Planned",
+            3: "In Production",
+            4: "Post Production",
+            5: "Released",
+            6: "Canceled",
+            7: "Exit",
+        }
+
+    print("1: Rumored")
+    print("2: Planned")
+    print("3: In Production")
+    print("4: Post Production")
+    print("5: Released")
+    print("6: Canceled")
+    print("7: Exit")
+        
+    status = input("Select new status (default 7): ")
+    try:
+        choice = int(status)
+        if choice in options:
+            status = options[choice]
+        else:
+            clear_terminal()
+            print("Invalid input, exiting...")
+            return
+    except ValueError:
+        clear_terminal()
+        print("Invalid input, exiting...")
+        return
+    
+    print("Type nothing and press enter to cancel")
+    release_date = input("Input new overview (yyyy-mm-dd format): ")
+    if not release_date.strip():
+        clear_terminal()
+        print("Invalid date format, exiting...")
+        return
+    
+    try:
+        datetime.strptime(release_date, "%Y-%m-%d")
+        print("Valid Date")
+    except ValueError:
+        clear_terminal()
+        print("Invalid date format, exiting...")
+        return
+    
+
+    # adult
+    options = {
+            1: "True",
+            2: "False",
+            3: "Exit",
+        }
+
+    print("1: True")
+    print("2: False")
+    print("3: Exit")
+    
+    adult = input("Select new adult value (default 3): ")
+    try:
+        choice = int(adult)
+        if choice in options:
+            adult = options[choice]
+        else:
+            clear_terminal()
+            print("Invalid input, exiting...")
+            return
+    except ValueError:
+        clear_terminal()
+        print("Invalid input, exiting...")
+        return
+
+    # get video
+    print("1: True")
+    print("2: False")
+    print("3: Exit")
+    
+    video = input("Select new video value (default 3): ")
+    try:
+        choice = int(video)
+        if choice in options:
+            video = options[choice]
+        else:
+            clear_terminal()
+            print("Invalid input, exiting...")
+            return
+    except ValueError:
+        clear_terminal()
+        print("Invalid input, exiting...")
+        return
+    
+    # new runtime
+    runtime = input("Input new runtime, in minutes (non-negative int): ")
+    if not runtime.strip():
+        clear_terminal()
+        print("No input detected, exiting...")
+        return
+
+    # check if new movie id is non-negative int
+    if not runtime.isdigit() or runtime.isdigit() < 0:
+        clear_terminal()
+        print("Invalid input, must be non-negative integer, exiting...")
+        return
+    
+
+
+    # query
+    query = '''
+        INSERT INTO Movie (movie_id, title, overview, status, release_date, adult, video, runtime, vote_average, vote_count)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, "0", "0")
+        '''
+    
+    try:
+        c.execute(query, (movie_id, title, overview, status, release_date, adult, video, runtime))
+        netflixdb.commit()
+        print("Movie inserted!")
+    except Error as e:
+        print(f"An error occurred: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+    
+
+def delete_movie():
+    movie_id = input("Input movie ID:")
+    query = '''
+        SELECT *
+        from movie 
+        where movie_id = %s
+        '''
+    c.execute(query, (movie_id,))
+    result = c.fetchall()
+
+    # quit if no movie found
+    if not result:
+        print("Movie not found, exiting...")
+        return
+    
+    delete_query = '''
+        DELETE
+        FROM Movie
+        WHERE movie_id = %s
+        '''
+    
+    try:
+        c.execute(delete_query, (movie_id,))
+        result = c.fetchall()
+        netflixdb.commit()
+        print("Succesfully deleted movie!")
+    except Error as e:
+        print(f"An error occurred: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+
+
+
 # -----------------------------------
 # R9 Functions
 # -----------------------------------
-
-# returns best rated crew members
 def success_rate_per_crew():
 
     # setting to let query run
@@ -783,7 +975,6 @@ genre_mapping = {
 }
 
 # R10 main function
-# returns best production studios from a given genre
 def best_production_studios():
     # print genres and get ID from user
     print(genre_list_print)
@@ -965,11 +1156,17 @@ def R8():
     clear_terminal()
     while True:
         print("1: Update movie attributes")
+        print("2: Insert New Movie")
+        print("3: Delete Movie")
         print("2: Exit to main menu")
         user = input("Select option (default 2): ")
 
         if user == "1":
             update_movie()
+        elif user == "2":
+            insert_movie()
+        elif user == "3":
+            delete_movie()
         else:
             return
 
@@ -995,14 +1192,10 @@ def Stats():
             clear_terminal()
             return
 
-boot = True
-
 # main menu
 def menu():
     while True:
-        if boot == True:
-            clear_terminal()
-            boot = False
+        clear_terminal()
         print("1 (R6): Searching and metadata")
         print("2 (R7): search productions")
         print("3 (R8): Edit Movie Details")
