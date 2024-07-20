@@ -80,7 +80,7 @@ def redo_database():
         print("remaking database")
         # create db if does not exist
         c.execute("DROP DATABASE IF EXISTS netflix")
-        c.execute("CREATE DATABASE IF NOT EXISTS netflix")
+        c.execute("CREATE DATABASE netflix")
 
         # create tables
         # print("making tables")
@@ -390,6 +390,7 @@ def move_data_full():
     paginate(table_data, 20)
 
     return
+
 
 # -----------------------------------
 # R7 Functions
@@ -1049,6 +1050,94 @@ def best_genre():
     result = c.fetchall()
     print_table(result)
 
+
+# -----------------------------------
+# R15 Functions
+# -----------------------------------
+
+def add_rating():
+    movie_id = input("Enter the Movie ID you want to rate: ")
+    query = '''
+        SELECT vote_average, vote_count, title
+        FROM movie 
+        WHERE movie_id = %s
+        '''
+    c.execute(query, (movie_id,))
+    result = c.fetchone()
+
+    # quit if no movie found
+    if not result:
+        print("Movie not found, exiting...")
+        return
+    
+    vote_average = float(result[0])
+    vote_count = int(result[1])
+    title = result[2]
+
+    print("Movie found: " + title)
+    rating = input("Enter the rating you would like to add (between 0-10, inclusive, can be float):")
+
+    # check if rating is integer or not
+    try: 
+        rating = float(rating)
+    except:
+        print("Invalid input, exiting...")
+        return
+    
+
+    if not (0 <= rating <= 10):
+        print("Invalid input, exiting...")
+        return
+
+    vote_average = (vote_average * vote_count + rating) / (vote_count + 1) #calculate new vote_average
+    vote_average = str(round(vote_average, 3)) #round to 2 decimal places and convet to string
+    vote_count += 1 #increment vote_count
+    vote_count = str(vote_count) # convert to string
+
+
+    update_query = '''
+        UPDATE movie
+        SET vote_average = %s, vote_count = %s
+        WHERE movie_id = %s
+    '''
+
+    c.execute(update_query, (vote_average, vote_count, movie_id))
+    netflixdb.commit()
+
+    print("new average vote: " + str(vote_average))
+    print("new vote_count: " + str(vote_count))
+
+# -----------------------------------
+# R16 Functions
+# -----------------------------------
+
+def create_indexes():
+
+    # checks if indexes are already created. if so, don't run create index functions
+    check_query = '''
+        SHOW INDEX
+        FROM movie
+        WHERE Key_name = "idx_movie_title"
+    '''
+
+    index_queries = '''
+        CREATE INDEX idx_movie_title ON movie(title);
+        CREATE INDEX idx_classified_in_genre_id ON classified_in(genre_id);
+        CREATE INDEX idx_classified_in_movie_id ON classified_in(movie_id);
+        CREATE INDEX idx_produced_by_movie_id ON produced_by(movie_id);
+        CREATE INDEX idx_produced_by_production_id ON produced_by(production_id);
+        CREATE INDEX idx_production_name ON production(production_name);
+        CREATE INDEX idx_genre_name ON genre(genre_name);
+        CREATE INDEX idx_crew_person_id ON crew(person_id);
+    '''
+
+    c.execute(check_query)
+    result = c.fetchone()
+
+    if not result:
+        c.execute(index_queries)
+
+
 # -----------------------------------
 # Connecting to DB
 # -----------------------------------
@@ -1104,7 +1193,7 @@ netflixdb = mysql.connector.connect(
 
 # connect cursor to db to execute queries
 c = netflixdb.cursor()
-redo_database() #create tables and load tables with csvs.
+redo_database() #create tables and load tables with csvs
 
 # -----------------------------------
 # Menu Nav
@@ -1124,20 +1213,21 @@ def R6():
         print("3: Search featuring person, fuzzy")
         print("4: Basic details and synopsis (from movie ID)")
         print("5 (R12): Search Metadata (from movie ID)")
-        print("6: Exit to main menu")
-        user = input("Select option (default 6): ")
+        print("6 (R15): Rate a Movie!")
+        print("7: Exit to main menu")
+        user = input("Select option (default 7): ")
         if user == "1":
             search_title()
         elif user == "2":
             search_genre()
         elif user == "3":
             search_credited_person()
-            #print("to be implemented")
         elif user == "4":
             movie_data_simple()
         elif user == "5":
             move_data_full()
-            #print("to be implemented")
+        elif user == "6":
+            add_rating()
         else:
             return
 
@@ -1196,7 +1286,7 @@ def Stats():
 def menu():
     while True:
         clear_terminal()
-        print("1 (R6): Searching and metadata")
+        print("1 (R6 + R15): Searching and metadata")
         print("2 (R7): search productions")
         print("3 (R8): Edit Movie Details")
         print("4 (R9, R10, R11): Get statistics")
@@ -1217,5 +1307,6 @@ def menu():
             break
 
 c.execute("Use Netflix")
+create_indexes() #create indexes R16
 menu()
 netflixdb.close()
