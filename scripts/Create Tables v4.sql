@@ -1,5 +1,6 @@
 USE netflix;
 
+-- Main table
 CREATE TABLE Movie (
 	movie_id INT NOT NULL,
     title Varchar(100) NOT NULL DEFAULT 'No Title',
@@ -22,6 +23,7 @@ ALTER TABLE Movie ADD CONSTRAINT runtime CHECK (runtime >= 0);
 ALTER TABLE Movie ADD CONSTRAINT vote_average CHECK (vote_average >= 0);
 ALTER TABLE Movie ADD CONSTRAINT vote_count CHECK (vote_count >= 0);
 
+-- Connected with Movie
 CREATE TABLE Credit (
     person_id INT NOT NULL,
 	name Varchar(100),
@@ -30,6 +32,7 @@ CREATE TABLE Credit (
 
 ALTER TABLE Credit ADD CONSTRAINT person_id CHECK (person_id >= 0);
 
+-- Subset of Credit
 CREATE TABLE Cast (
 	cast_id INT NOT NULL,
     movie_id INT NOT NULL,
@@ -45,6 +48,7 @@ CREATE TABLE Cast (
 	PRIMARY KEY(cast_id, person_id)
 );
 
+-- Subset of Credit
 CREATE TABLE Crew (
 	person_id INT NOT NULL,
     FOREIGN KEY (person_id) REFERENCES Credit (person_id)
@@ -53,16 +57,19 @@ CREATE TABLE Crew (
 	PRIMARY KEY(person_id)
 );
 
+-- Connected with Crew
 CREATE TABLE Department(
 	Dept_Name Varchar(50) UNIQUE,
     PRIMARY KEY(Dept_Name)
 );
 
+-- Connected with Crew
 CREATE TABLE Job(
 	Job_Name Varchar(50) UNIQUE,
     PRIMARY KEY(Job_Name)
 );
 
+-- M:N for Crew and Job
 CREATE TABLE Performs (
 	Job_Name Varchar(50),
 	person_id INT NOT NULL,
@@ -79,6 +86,7 @@ CREATE TABLE Performs (
 	PRIMARY KEY(Job_Name, person_id, movie_id)
 );
 
+-- M:N for Crew and Department
 CREATE TABLE Assigned_To (
 	Dept_Name Varchar(50),
 	person_id INT NOT NULL,
@@ -95,18 +103,21 @@ CREATE TABLE Assigned_To (
 	PRIMARY KEY(Dept_Name, person_id, movie_id)
 );
 
+-- Connected with Movie
 CREATE TABLE Production (
 	production_id INT NOT NULL,
 	production_name Varchar(100),
 	PRIMARY KEY(production_id)
 );
 
+-- Connected with Movie
 CREATE TABLE Genre (
 	genre_id INT NOT NULL,
 	genre_name Varchar(50),
 	PRIMARY KEY(genre_id)
 );
 
+-- M:N for Movie and Production
 CREATE TABLE Produced_By (
 	movie_id INT NOT NULL,
     production_id INT NOT NULL,
@@ -119,6 +130,7 @@ CREATE TABLE Produced_By (
 	PRIMARY KEY(movie_id, production_id)
 );
 
+-- M:N for Movie and Genre
 CREATE TABLE Classified_In (
 	movie_id INT NOT NULL,
 	genre_id INT NOT NULL,
@@ -131,6 +143,7 @@ CREATE TABLE Classified_In (
 	PRIMARY KEY(movie_id, genre_id)
 );
 
+-- M:N for Movie and Credit
 CREATE TABLE Comprises_Of (
 	movie_id INT NOT NULL,
 	person_id INT NOT NULL,
