@@ -146,42 +146,6 @@ def delete_table(cnx: MySQLConnection, table_name: str) -> None:
             cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
 
 
-def create_crew_table(cnx: MySQLConnection) -> None:
-    if cnx and cnx.is_connected():
-        with cnx.cursor() as cursor:
-            query = """
-            CREATE TABLE IF NOT EXISTS crew (
-                crew_id INT PRIMARY KEY,
-                name VARCHAR(255),
-                job VARCHAR(255),
-                rating FLOAT
-            )
-            """
-            cursor.execute(query)
-
-
-def populate_crew_table(cnx: MySQLConnection, csv_file_path: str) -> None:
-    df = pd.read_csv(csv_file_path)
-
-    df = df.astype({
-        'crew_id': int,
-        'name': str,
-        'job': str,
-        'rating': float
-    })
-
-    for _, row in df.iterrows():
-        query = """
-        INSERT INTO crew (crew_id, name, job, rating)
-        VALUES (%s, %s, %s, %s)
-        """
-        values = tuple(row)
-
-        if cnx and cnx.is_connected():
-            with cnx.cursor() as cursor:
-                cursor.execute(query, values)
-
-
 def get_crew_statistics(cnx: MySQLConnection) -> pd.DataFrame:
     if cnx and cnx.is_connected():
         query = """
@@ -378,6 +342,127 @@ def populate_produced_by_table(cnx: MySQLConnection, csv_file_path: str) -> None
         with cnx.cursor() as cursor:
             for _, row in data.iterrows():
                 query = f"INSERT INTO Produced_By VALUES (%s, %s)"
+                cursor.execute(query, tuple(row))
+
+        cnx.commit()
+
+
+"""
+Crew table
+"""
+
+
+def create_crew_table(cnx: MySQLConnection) -> None:
+    if cnx and cnx.is_connected():
+        with cnx.cursor() as cursor:
+            query = """
+            CREATE TABLE IF NOT EXISTS Crew (
+                person_id INT PRIMARY KEY,
+                FOREIGN KEY (person_id) REFERENCES Credit(person_id)
+            );
+            """
+            cursor.execute(query)
+
+
+def populate_crew_table(cnx: MySQLConnection, csv_file_path: str) -> None:
+    if cnx and cnx.is_connected():
+        data = pd.read_csv(csv_file_path)
+
+        with cnx.cursor() as cursor:
+            for _, row in data.iterrows():
+                query = f"INSERT INTO Crew VALUES (%s)"
+                cursor.execute(query, tuple(row))
+
+        cnx.commit()
+
+
+"""
+Performs table
+"""
+
+
+def create_performs_table(cnx: MySQLConnection) -> None:
+    if cnx and cnx.is_connected():
+        with cnx.cursor() as cursor:
+            query = """
+            CREATE TABLE IF NOT EXISTS Performs (
+                job_name VARCHAR(255),
+                person_id INT,
+                movie_id INT,
+                PRIMARY KEY (person_id, movie_id),
+                FOREIGN KEY (person_id) REFERENCES Credit(person_id),
+                FOREIGN KEY (movie_id) REFERENCES Movie(movie_id),
+                FOREIGN KEY (job_name) REFERENCES Job(job_name)
+            );
+            """
+            cursor.execute(query)
+
+
+def populate_performs_table(cnx: MySQLConnection, csv_file_path: str) -> None:
+    if cnx and cnx.is_connected():
+        data = pd.read_csv(csv_file_path)
+
+        with cnx.cursor() as cursor:
+            for _, row in data.iterrows():
+                query = f"INSERT IGNORE INTO Performs VALUES (%s, %s, %s)"
+                cursor.execute(query, tuple(row))
+
+        cnx.commit()
+
+
+"""
+Job table
+"""
+
+
+def create_job_table(cnx: MySQLConnection) -> None:
+    if cnx and cnx.is_connected():
+        with cnx.cursor() as cursor:
+            query = """
+            CREATE TABLE IF NOT EXISTS Job (
+                job_name VARCHAR(255) PRIMARY KEY
+            );
+            """
+            cursor.execute(query)
+
+
+def populate_job_table(cnx: MySQLConnection, csv_file_path: str) -> None:
+    if cnx and cnx.is_connected():
+        data = pd.read_csv(csv_file_path)
+
+        with cnx.cursor() as cursor:
+            for _, row in data.iterrows():
+                query = f"INSERT INTO Job VALUES (%s)"
+                cursor.execute(query, tuple(row))
+
+        cnx.commit()
+
+
+"""
+Credit table
+"""
+
+
+def create_credit_table(cnx: MySQLConnection) -> None:
+    if cnx and cnx.is_connected():
+        with cnx.cursor() as cursor:
+            query = """
+            CREATE TABLE IF NOT EXISTS Credit (
+                person_id INT PRIMARY KEY,
+                name VARCHAR(255)
+            );
+            """
+            cursor.execute(query)
+
+
+def populate_credit_table(cnx: MySQLConnection, csv_file_path: str) -> None:
+    if cnx and cnx.is_connected():
+        data = pd.read_csv(csv_file_path)
+        data = data.drop_duplicates(subset="person_id", keep="first")
+
+        with cnx.cursor() as cursor:
+            for _, row in data.iterrows():
+                query = f"INSERT INTO Credit VALUES (%s, %s)"
                 cursor.execute(query, tuple(row))
 
         cnx.commit()
