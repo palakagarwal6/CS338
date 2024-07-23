@@ -1,4 +1,4 @@
-from db import analyze_genre, check_table_exists, connect_to_mysql, create_classified_in_table, create_database_if_not_exists, create_genre_tables, create_movies_table, create_produced_by_table, create_production_table, delete_table, get_average_ratings_per_genre, get_popular_genres, populate_classified_in_table, populate_genre_table, populate_movies_table, populate_produced_by_table, populate_production_table, use_database
+from db import create_credit_table, create_job_table, populate_job_table, analyze_genre, check_table_exists, connect_to_mysql, create_classified_in_table, create_database_if_not_exists, create_genre_tables, create_movies_table, create_performs_table, create_produced_by_table, create_production_table, create_crew_table, delete_table, get_average_ratings_per_genre, get_crew_statistics, populate_credit_table, populate_classified_in_table, populate_genre_table, populate_movies_table, populate_performs_table,  populate_produced_by_table, populate_production_table, populate_crew_table, use_database
 
 import os
 
@@ -31,7 +31,7 @@ CSV_PATHS = {
         "sample": os.path.join(PROJECT_ROOT, "tables", "sample", "Job.csv"),
         "production": os.path.join(PROJECT_ROOT, "tables", "prod", "Job.csv")
     },
-    "credit": {
+    "Credit": {
         "sample": os.path.join(PROJECT_ROOT, "tables", "sample", "credit.csv"),
         "production": os.path.join(PROJECT_ROOT, "tables", "prod", "credit.csv")
     },
@@ -72,6 +72,18 @@ if not check_table_exists(cnx, "Production"):
 if not check_table_exists(cnx, "Produced_By"):
     create_produced_by_table(cnx)
     populate_produced_by_table(cnx, CSV_PATHS["Produced_By"][db_type])
+if not check_table_exists(cnx, "Job"):
+    create_job_table(cnx)
+    populate_job_table(cnx, CSV_PATHS["Job"][db_type])
+if not check_table_exists(cnx, "Credit"):
+    create_credit_table(cnx)
+    populate_credit_table(cnx, CSV_PATHS["Credit"][db_type])
+if not check_table_exists(cnx, "Performs"):
+    create_performs_table(cnx)
+    populate_performs_table(cnx, CSV_PATHS["Performs"][db_type])
+if not check_table_exists(cnx, "Crew"):
+    create_crew_table(cnx)
+    populate_crew_table(cnx, CSV_PATHS["crew"][db_type])
 
 # st.header("Upload CSV to Populate Genre Tables")
 # csv_file_path = st.file_uploader("Choose a CSV file", type="csv")
@@ -97,14 +109,22 @@ if st.button("Analyze Genre"):
     genre_analysis_df = analyze_genre(cnx, selected_genre)
     st.table(genre_analysis_df)
 
+st.header("Crew statistics")
+crew_stats_df = get_crew_statistics(cnx)
+st.table(crew_stats_df)
+
 
 if st.button(label="Reset database", type="primary"):
     # Delete tables w/ foreign keys first
     delete_table(cnx, "Produced_By")
     delete_table(cnx, "Classified_In")
+    delete_table(cnx, "Crew")
+    delete_table(cnx, "Performs")
 
     # Delete remaining tables
+    delete_table(cnx, "Job")
     delete_table(cnx, "Movie")
     delete_table(cnx, "Genre")
     delete_table(cnx, "Production")
+    delete_table(cnx, "Credit")
     st.rerun()
