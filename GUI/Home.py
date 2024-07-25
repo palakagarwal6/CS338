@@ -14,20 +14,24 @@ CSV_PATHS = {
 #     db_type = st.selectbox(label="Select database type",
 #                            options=["sample", "production"])
 
-db_type = "sample"
+db_type = "production"
 
 cnx = connect_to_mysql()
 
 create_database_if_not_exists(cnx=cnx, db_name=db_type)
 use_database(cnx=cnx, db_name=db_type)
 
-movies_table_exists = check_table_exists(cnx, "Movie")
+movies_table_exists = check_table_exists(cnx, "movies")
 
 if not movies_table_exists:
-    create_movies_table(cnx=cnx)
-    with st.spinner("Loading data from CSV into database..."):
-        populate_movies_table(
-            cnx=cnx, csv_file_path=CSV_PATHS[db_type])
+    create_movies_table(cnx=cnx, feature="Home")
+    progress_bar = st.progress(0, text="Loading movies")
+
+    def update_progress(current, total):
+        progress_bar.progress(
+            current / total, text=f"Loading movies ({current}/{total})")
+    populate_movies_table(
+        cnx=cnx, csv_file_path=CSV_PATHS[db_type], update_progress=update_progress, feature="Home")
 
 st.title("Movies Database")
 
@@ -59,5 +63,5 @@ if st.button("Confirm"):
     st.rerun()
 
 if st.button(label="Reset database", type="primary"):
-    delete_table(cnx, "Movie")
+    delete_table(cnx, "movies")
     st.rerun()
