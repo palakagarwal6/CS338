@@ -5,7 +5,7 @@ import os
 import streamlit as st
 
 PROJECT_ROOT = os.path.abspath(os.path.join(
-    os.path.dirname(__file__), '..', '..'))
+    os.path.dirname(__file__), '..'))
 CSV_PATHS = {
     "classified_in": {
         "sample": os.path.join(PROJECT_ROOT, "tables", "sample", "classified_in.csv"),
@@ -45,7 +45,7 @@ CSV_PATHS = {
     },
 }
 
-db_type = "sample"
+db_type = "production"
 
 cnx = connect_to_mysql()
 create_database_if_not_exists(cnx=cnx, db_name=db_type)
@@ -53,13 +53,33 @@ use_database(cnx=cnx, db_name=db_type)
 
 st.title("Statistics")
 
-
 cnx = connect_to_mysql()
+
+if st.button(label="Reset database", type="primary"):
+    # Delete tables w/ foreign keys first
+    delete_table(cnx, "Produced_By")
+    delete_table(cnx, "Classified_In")
+    delete_table(cnx, "Crew")
+    delete_table(cnx, "Performs")
+
+    # Delete remaining tables
+    delete_table(cnx, "Job")
+    delete_table(cnx, "Movie")
+    delete_table(cnx, "Genre")
+    delete_table(cnx, "Production")
+    delete_table(cnx, "Credit")
+    st.rerun()
 
 # Load data into tables
 if not check_table_exists(cnx, "Movie"):
     create_movies_table(cnx)
-    populate_movies_table(cnx, CSV_PATHS["movie"][db_type])
+    progress_bar = st.progress(0, text="Loading movies...")
+
+    def update_progress(current, total):
+        progress_bar.progress(
+            current / total, text=f"Loading movies... ({current}/{total})")
+
+    populate_movies_table(cnx, CSV_PATHS["movie"][db_type], update_progress)
 if not check_table_exists(cnx, "Genre"):
     create_genre_tables(cnx)
     populate_genre_table(cnx, CSV_PATHS["genre"][db_type])
@@ -111,20 +131,15 @@ if st.button("Analyze Genre"):
 
 st.header("Crew statistics")
 crew_stats_df = get_crew_statistics(cnx)
-st.table(crew_stats_df)
 
+# rows_per_page = 10
+# total_pages = (len(crew_stats_df) - 1) // rows_per_page + 1
 
-if st.button(label="Reset database", type="primary"):
-    # Delete tables w/ foreign keys first
-    delete_table(cnx, "Produced_By")
-    delete_table(cnx, "Classified_In")
-    delete_table(cnx, "Crew")
-    delete_table(cnx, "Performs")
+# current_page = st.number_input(
+#     'Page number', min_value=1, max_value=total_pages, value=1)
 
-    # Delete remaining tables
-    delete_table(cnx, "Job")
-    delete_table(cnx, "Movie")
-    delete_table(cnx, "Genre")
-    delete_table(cnx, "Production")
-    delete_table(cnx, "Credit")
-    st.rerun()
+# start_idx = (current_page - 1) * rows_per_page
+# end_idx = start_idx + rows_per_page
+
+# st.write(f"Page {current_page} of {total_pages}")
+st.dataframe(crew_stats_df)
