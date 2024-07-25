@@ -112,7 +112,7 @@ if not check_table_exists(cnx, "Crew"):
 #     populate_genre_tables(cnx, csv_file_path)
 #     st.success("Tables populated successfully")
 
-st.header("Popular Genres")
+st.header("Best Production Studios by Genre")
 
 popular_genres_df = get_average_ratings_per_genre(cnx)
 # So that the first column in the table starts from 1 and not 0
