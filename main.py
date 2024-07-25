@@ -49,12 +49,19 @@ def clear_terminal():
 
 # copy prod/sample tables to correct directory for db loading
 def copy_files(src_dir, dest_dir):
+    if not os.path.exists(dest_dir):
+        os.makedirs(dest_dir)
+
     for filename in os.listdir(src_dir):
         src_file = os.path.join(src_dir, filename)
         dest_file = os.path.join(dest_dir, filename)
 
         if os.path.isfile(src_file):
-            shutil.copy(src_file, dest_file)
+            try:
+                shutil.copy(src_file, dest_file)
+                print(f"Successfully copied {src_file} to {dest_file}")
+            except Exception as e:
+                print(f"Failed to copy {src_file} to {dest_file}: {e}")
 
 def paginate(data, page_size):
     total_rows = len(data)
@@ -1050,6 +1057,496 @@ def best_genre():
     result = c.fetchall()
     print_table(result)
 
+# -----------------------------------
+# R13  Functions
+# -----------------------------------
+
+
+def advanced_search():
+
+    #init variables
+    release_date_query = ""
+    runtime_query = ""
+    vote_average_query = ""
+    vote_count_query = ""
+    subquery = []
+
+    while True:
+        print("Current Filters [current search query]")
+
+        # print options
+        print("1: release date [" + release_date_query +"]")
+        print("2: runtime [" + runtime_query +"]")
+        print("3: vote_average [" + vote_average_query +"]")
+        print("4: vote count [" + vote_count_query +"]")
+        print("5: submit search")
+        print("6: exit")
+
+        user = input("Select filter options:") 
+
+        # handle user filter selections
+
+        # release date
+        if user == "1":
+            operator = ""
+            release_date_x = ""
+            release_date_y = ""
+
+            print("1: release date after x")
+            print("2: release date before x ")
+            print("3: release date between x and y (x <= y)")
+            print("4: turn filter off")
+            print("5: leave filter as is")
+
+            release_user = input("input option (default 5):")
+
+            # pick operator
+            if release_user == "1":
+                operator = ">="
+            if release_user == "2":
+                operator = "<="
+            
+            if release_user == "4":
+                release_date_query = ""
+            elif release_user == "5":
+                #placeholder, does nothing and exits
+                operator = ""
+            elif release_user == "3":
+                release_date_x = input("Input date x (yyyy-mm-dd format): ")
+                if not release_date_x.strip():
+                    clear_terminal()
+                    print("Invalid date format, exiting...")
+                    return
+                
+                try:
+                    datetime.strptime(release_date_x, "%Y-%m-%d")
+                    print("Valid Date")
+                except ValueError:
+                    clear_terminal()
+                    print("Invalid date format, exiting...")
+
+                # make query for options 1 and 2
+                if release_user == "1" or release_user == "2":
+                    release_date_query = "release_date " + operator + " '" + release_date_x + "'"
+                    # release_date <=/>= 'date_x'
+                
+                
+                # release date between x and y
+                # get second date
+                if release_user == "3":
+                    release_date_y = input("Input date y (yyyy-mm-dd format): ")
+                    if not release_date_y.strip():
+                        clear_terminal()
+                        print("Invalid date format, exiting...")
+                        return
+                    
+                    try:
+                        datetime.strptime(release_date_y, "%Y-%m-%d")
+                        print("Valid Date")
+                    except ValueError:
+                        clear_terminal()
+                        print("Invalid date format, exiting...")
+
+                    # check if x <= y
+                    if not (release_date_x <= release_date_y):
+                        print("Error: x is not less than or equal to y")
+                        return
+
+                    release_date_query = "release_date BETWEEN '" + release_date_x + "' AND '" + release_date_y + "'"
+                    # release_date BETWEEN 'date_x' AND 'date_y'
+            else:
+                operator = ""
+                # does nothing
+
+        #runtime
+        if user == "2":
+            runtime_x = ""
+            runtime_y = ""
+            operator = ""
+            print("1: runtime > x")
+            print("2: runtime < x ")
+            print("3: runtume between x and y (x <= y)")
+            print("4: turn filter off")
+            print("5: leave filter as is")
+
+            runtime_user = input("input option (default 5):")
+
+            # pick operator
+            if runtime_user == "1":
+                operator = ">="
+            if runtime_user == "2":
+                operator = "<="
+            
+            if runtime_user == "4":
+                runtime_query = ""
+            elif runtime_user == "5":
+                #placeholder, does nothing and exits
+                operator = ""
+            elif runtime_user =="3":
+                runtime_x = input("Input runtime x (non-negative int): ")
+
+                # check if int and non-negative
+                if not runtime_x.strip():
+                    clear_terminal()
+                    print("No input detected, exiting...")
+                    return
+
+                # check if new movie id is non-negative int
+                if not runtime_x.isdigit() or runtime_x.isdigit() < 0:
+                    clear_terminal()
+                    print("Invalid input, must be non-negative integer, exiting...")
+                    return
+
+                # make query for options 1 and 2
+                if runtime_user == "1" or runtime_user == "2":
+                    runtime_query = "runtime " + operator + " '" + runtime_x + "'"
+                    # runtime <=/>= 'runtime_x'
+                
+                
+                # release date between x and y
+                # get second date
+                if runtime_user == "3":
+                    runtime_y = input("Input runtime y (on-negative int): ")
+                    
+                    # check if int and non-negative
+                    if not runtime_y.strip():
+                        clear_terminal()
+                        print("No input detected, exiting...")
+                        return
+
+                    # check if new movie id is non-negative int
+                    if not runtime_y.isdigit() or runtime_y.isdigit() < 0:
+                        clear_terminal()
+                        print("Invalid input, must be non-negative integer, exiting...")
+                        return
+
+                    # check if x <= y
+                    if not (runtime_x <= runtime_y):
+                        print("Error: x is not less than or equal to y")
+                        return
+
+                    runtime_query = "runtime BETWEEN '" + runtime_x + "' AND '" + runtime_y + "'"
+                    # release_date BETWEEN 'date_x' AND 'date_y'
+            else:
+                operator = ""
+                # does nothing
+
+
+        #vote_average
+        if user == "3":
+            vote_average_x = ""
+            vote_average_y = ""
+            operator = ""
+            print("1: vote average > x")
+            print("2: vote average < x ")
+            print("3: vote average between x and y (x <= y)")
+            print("4: turn filter off")
+            print("5: leave filter as is")
+
+            vote_average_user = input("input option (default 5):")
+
+            # pick operator
+            if vote_average_user == "1":
+                operator = ">="
+            if vote_average_user == "2":
+                operator = "<="
+            
+            if vote_average_user == "4":
+                vote_average_query = ""
+            elif vote_average_user == "5":
+                #placeholder, does nothing and exits
+                operator = ""
+            elif vote_average_user == "3":
+                vote_average_x = input("Input vote_average x (float between 0-10): ")
+
+                # check if rating is float or not
+                try: 
+                    vote_average_x = float(vote_average_x)
+                except:
+                    print("Invalid input, exiting...")
+                    return
+
+                #check if between 0-10
+                if not (0 <= vote_average_x <= 10):
+                    print("Invalid input, exiting...")
+                    return
+
+                # make query for options 1 and 2
+                if vote_average_user == "1" or vote_average_user == "2":
+                    vote_average_query = "vote_average " + operator + " '" + str(vote_average_x) + "'"
+                    # runtime <=/>= 'runtime_x'
+                
+                
+                # release date between x and y
+                # get second date
+                if vote_average_user == "3":
+                    vote_average_y = input("Input runtime y (on-negative int): ")
+                    
+                    # check if rating is float or not
+                    try: 
+                        vote_average_y = float(vote_average_y)
+                    except:
+                        print("Invalid input, exiting...")
+                        return
+
+                    # check if between 0-10
+                    if not (0 <= vote_average_y <= 10):
+                        print("Invalid input, exiting...")
+                        return
+
+                    # check if x <= y
+                    if not (vote_average_x <= vote_average_y):
+                        print("Error: x is not less than or equal to y")
+                        return
+
+                    vote_average_query = "vote_average BETWEEN '" + vote_average_y + "' AND '" + vote_average_y + "'"
+                    # release_date BETWEEN 'date_x' AND 'date_y'
+
+                else:
+                    operator = ""
+                    # does nothing
+
+        #vote count
+        if user == "4":
+            vote_count_x = ""
+            vote_count_y = ""
+            operator = ""
+            print("1: vote count > x")
+            print("2: vote count < x ")
+            print("3: vote count between x and y (x <= y)")
+            print("4: turn filter off")
+            print("5: leave filter as is")
+
+            vote_count_user = input("input option (default 5):")
+
+            # pick operator
+            if vote_count_user == "1":
+                operator = ">="
+            if vote_count_user == "2":
+                operator = "<="
+            
+            if vote_count_user == "4":
+                vote_count_query = ""
+            elif vote_count_user == "5":
+                #placeholder, does nothing and exits
+                operator = ""
+            elif vote_count_user == "3":
+                vote_count_x = input("Input runtime x (non-negative int): ")
+
+                # check if int and non-negative
+                if not vote_count_x.strip():
+                    clear_terminal()
+                    print("No input detected, exiting...")
+                    return
+
+                # check if new movie id is non-negative int
+                if not vote_count_x.isdigit() or vote_count_x.isdigit() < 0:
+                    clear_terminal()
+                    print("Invalid input, must be non-negative integer, exiting...")
+                    return
+
+                # make query for options 1 and 2
+                if vote_count_user == "1" or vote_count_user == "2":
+                    vote_count_query = "vote_count " + operator + " '" + vote_count_x + "'"
+                    # runtime <=/>= 'runtime_x'
+                
+                
+                # release date between x and y
+                # get second date
+                if vote_count_user == "3":
+                    vote_count_y = input("Input runtime y (on-negative int): ")
+                    
+                    # check if int and non-negative
+                    if not vote_count_y.strip():
+                        clear_terminal()
+                        print("No input detected, exiting...")
+                        return
+
+                    # check if new movie id is non-negative int
+                    if not vote_count_y.isdigit() or vote_count_y.isdigit() < 0:
+                        clear_terminal()
+                        print("Invalid input, must be non-negative integer, exiting...")
+                        return
+
+                    # check if x <= y
+                    if not (vote_count_x <= vote_count_y):
+                        print("Error: x is not less than or equal to y")
+                        return
+
+                    vote_count_query = "vote_count BETWEEN '" + vote_count_x + "' AND '" + vote_count_y + "'"
+                    # release_date BETWEEN 'date_x' AND 'date_y'
+
+                else:
+                    operator = ""
+                    # does nothing
+
+        if user == "5":
+
+            # subquery processing
+            # if filters 
+            subquery = [release_date_query, runtime_query, vote_average_query, vote_count_query]
+            subquery = [item for item in subquery if item] # filter out empty strings
+            if not subquery:
+                print("No filters entered, exiting")
+                return
+            subquery = " AND ".join(subquery)
+
+            print("subquery:" + subquery)
+            
+
+            main_query = '''
+                SELECT title, movie_id
+                FROM movie
+                WHERE ''' + subquery + ''';
+            '''
+            #print(main_query)
+            #input("press enter to continue")
+
+
+            # run query
+            c.execute(main_query)
+            result = c.fetchall()
+            paginate(result,30)
+            #return
+            
+        if user == "6":
+            return
+
+            
+# -----------------------------------
+# Backup R14 Functions
+# -----------------------------------     
+
+
+def search_credit():
+    search = input("Input credited person name search:") #user input
+
+    # query
+    query = '''
+        SELECT name, person_id 
+        FROM credit
+        WHERE name like %s 
+        LIMIT 10
+    '''
+
+    # run and print query
+    c.execute(query, ('%' + search + '%',))
+    result = c.fetchall()
+    print_table(result)
+
+    person_id = input("Enter person_id you'd like to get information from:")
+
+    if not person_id.isdigit() or person_id.isdigit() < 0 or person_id.strip() == "":
+        clear_terminal()
+        print("Invalid input, must be non-negative integer, exiting...")
+        return
+    else:
+        return person_id
+
+
+def productions_affiliations(person_id):
+    print("Selecting the productions that given person has worked with in...")
+    query = '''
+        SELECT p.production_name as "Production Studio", COUNT(*) AS "Times featured"
+        FROM credit c
+        JOIN comprises_of co ON c.person_id = co.person_id
+        JOIN movie m ON co.movie_id = m.movie_id
+        JOIN produced_by pb ON m.movie_id = pb.movie_id
+        JOIN production p ON pb.production_id = p.production_id
+        WHERE c.person_id = %s
+        GROUP BY p.production_name
+        ORDER BY movie_count Desc;
+    '''
+    
+    c.execute(query, (person_id,))
+    result = c.fetchall()
+    print_table(result)
+
+
+
+def search_production():
+    search = input("Input production studio name search:") #user input
+
+    # query
+    query = '''
+        SELECT production_name, production_id 
+        FROM production
+        WHERE production_name like %s 
+        LIMIT 10
+    '''
+
+    # run and print query
+    c.execute(query, ('%' + search + '%',))
+    result = c.fetchall()
+    print_table(result)
+
+    production_id = input("Enter production_id you'd like to get information from:")
+
+    if not production_id.isdigit() or production_id.isdigit() < 0 or production_id.strip() == "":
+        clear_terminal()
+        print("Invalid input, must be non-negative integer, exiting...")
+        return
+    else:
+        return production_id
+
+
+def most_hired_per_production(production_id):
+    print("Selecting the people who have collaborated most with the given production studio...")
+    query = '''
+        SELECT c.person_id, c.name, COUNT(*) AS "Collaboration Count"
+        FROM credit c
+        INNER JOIN comprises_of co ON c.person_id = co.person_id
+        INNER JOIN movie m ON co.movie_id = m.movie_id
+        INNER JOIN produced_by pb ON m.movie_id = pb.movie_id
+        INNER JOIN production p ON pb.production_id = p.production_id
+        WHERE p.production_id = %s
+        GROUP BY c.person_id, c.name
+        ORDER BY collaborations DESC;
+    '''
+
+    c.execute(query, (production_id,))
+    result = c.fetchall()
+    print_table(result)
+
+
+def actor_genre_count(person_id):
+    print("Selecting the genres that given person has participated in...")
+    query = '''
+        WITH PersonMovies AS (
+        SELECT m.movie_id
+        FROM movie m
+        INNER JOIN comprises_of co ON m.movie_id = co.movie_id
+        WHERE co.person_id = %s
+        )
+        SELECT g.genre_name, COUNT(*) AS movie_count
+        FROM genre g
+        INNER JOIN classified_in ci ON g.genre_id = ci.genre_id
+        INNER JOIN PersonMovies pm ON ci.movie_id = pm.movie_id
+        GROUP BY g.genre_name
+        ORDER BY movie_count DESC;
+    '''
+
+    c.execute(query, (person_id,))
+    result = c.fetchall()
+    print_table(result)
+
+def R14():
+    while True:
+        print("1: credited worker affiliations")
+        print("2: search most hired people per production studio")
+        print("3: credited person's favourite genres")
+        print("4: exit")
+
+        user = input("Select option:")
+
+        if user == "1":
+            productions_affiliations(search_credit())
+        elif user == "2":
+            most_hired_per_production(search_production())
+        elif user == "3":
+            actor_genre_count(search_credit())
+        elif user == "4":
+            return
 
 # -----------------------------------
 # R15 Functions
@@ -1083,7 +1580,6 @@ def add_rating():
     except:
         print("Invalid input, exiting...")
         return
-    
 
     if not (0 <= rating <= 10):
         print("Invalid input, exiting...")
@@ -1213,8 +1709,9 @@ def R6():
         print("3: Search featuring person, fuzzy")
         print("4: Basic details and synopsis (from movie ID)")
         print("5 (R12): Search Metadata (from movie ID)")
-        print("6 (R15): Rate a Movie!")
-        print("7: Exit to main menu")
+        print("6 (R13): Advanced Search filters")
+        print("7 (R15): Rate a Movie!")
+        print("8: Exit to main menu")
         user = input("Select option (default 7): ")
         if user == "1":
             search_title()
@@ -1227,6 +1724,8 @@ def R6():
         elif user == "5":
             move_data_full()
         elif user == "6":
+            advanced_search()
+        elif user == "7":
             add_rating()
         else:
             return
@@ -1267,8 +1766,9 @@ def Stats():
         print("2 (R11): Most successful Genres")
         print("3 (R9): Average rating per crew member")
         print("4 (R10): Best production studios per genre")
-        print("5: Exit to previous menu")
-        user = input("Select option (Default 5): ")
+        print("5: (R14) : Stats about people")
+        print("6: Exit to previous menu")
+        user = input("Select option: ")
 
         if user == "1":
             genre_count()
@@ -1278,9 +1778,13 @@ def Stats():
             success_rate_per_crew()
         elif user == "4":
             best_production_studios()
-        else:
+        elif user == "5":
+            R14()
+        elif user == "6":
             clear_terminal()
             return
+
+
 
 # main menu
 def menu():
@@ -1289,10 +1793,10 @@ def menu():
         print("1 (R6 + R15): Searching and metadata")
         print("2 (R7): search productions")
         print("3 (R8): Edit Movie Details")
-        print("4 (R9, R10, R11): Get statistics")
+        print("4 (R9, R10, R11, R14): Get statistics")
         print("5: Remake database")
         print("6: Exit")
-        user = input("Select option (default 6): ")
+        user = input("Select option: ")
         if user == "1":
             R6()
         elif user == "2":
@@ -1303,7 +1807,7 @@ def menu():
             Stats()
         elif user == "5":
             redo_database()
-        else:
+        elif user == "6":
             break
 
 c.execute("Use Netflix")
