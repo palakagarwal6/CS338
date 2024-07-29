@@ -20,7 +20,7 @@ def connect_to_mysql() -> MySQLConnection:
     config = {
         "host": "localhost",
         "user": "root",
-        "password": "password"
+        "password": "Zz13667187517"
     }
 
     if GLOBAL_CNX:
@@ -65,14 +65,13 @@ def create_movies_table(cnx: MySQLConnection, feature: str = "Statistics") -> bo
             """
             cursor.execute(query)
 
-
 def populate_movies_table(cnx: MySQLConnection, csv_file_path: str, update_progress, feature: str = "Statistics") -> None:
     if feature == "Statistics":
         name = "Movie"
     else:
         name = "movies"
 
-    df = pd.read_csv(csv_file_path)
+    df = pd.read_csv(csv_file_path, na_values='nan')
     df = df.drop_duplicates(subset='movie_id', keep='first')
 
     df['movie_id'] = pd.to_numeric(df['movie_id'], errors='coerce')
@@ -99,16 +98,76 @@ def populate_movies_table(cnx: MySQLConnection, csv_file_path: str, update_progr
     for i, (_, row) in enumerate(df.iterrows()):
         query = f"""
         INSERT IGNORE INTO {name}(movie_id, title, overview, status, release_date, adult, video, runtime, vote_average, vote_count)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (
+            NULLIF(%s, 'nan'),
+            NULLIF(%s, 'nan'),
+            NULLIF(%s, 'nan'),
+            NULLIF(%s, 'nan'),
+            NULLIF(%s, 'nan'),
+            NULLIF('%s', 'nan'),
+            NULLIF('%s', 'nan'),
+            NULLIF(%s, 'nan'),
+            NULLIF(%s, 'nan'),
+            NULLIF(%s, 'nan')
+        )
         """
 
-        values = tuple(row)
+        values = list(row)
+        for vi in range(len(values)):
+            v = values[vi]
+            if pd.isnull(v):
+                values[vi] = 'nan'
+            if vi > 1 and vi < 4:
+                values[vi] = v.replace("'", "''")
 
         if cnx and cnx.is_connected():
             with cnx.cursor() as cursor:
                 cursor.execute(query, values)
 
         update_progress(i + 1, total_rows)
+# def populate_movies_table(cnx: MySQLConnection, csv_file_path: str, update_progress, feature: str = "Statistics") -> None:
+#     if feature == "Statistics":
+#         name = "Movie"
+#     else:
+#         name = "movies"
+#
+#     df = pd.read_csv(csv_file_path)
+#     df = df.drop_duplicates(subset='movie_id', keep='first')
+#
+#     df['movie_id'] = pd.to_numeric(df['movie_id'], errors='coerce')
+#     df['adult'] = df['adult'].astype(bool, errors='ignore')
+#     df['runtime'] = pd.to_numeric(df['runtime'], errors='coerce')
+#     df['vote_average'] = pd.to_numeric(df['vote_average'], errors='coerce')
+#     df['vote_count'] = pd.to_numeric(df['vote_count'], errors='coerce')
+#
+#     df.dropna(subset=['movie_id', 'runtime',
+#               'vote_average', 'vote_count'], inplace=True)
+#
+#     df = df.astype({
+#         'movie_id': int,
+#         'title': str,
+#         'overview': str,
+#         'status': str,
+#         'adult': bool,
+#         'runtime': int,
+#         'vote_average': float,
+#         'vote_count': int
+#     })
+#
+#     total_rows = len(df)
+#     for i, (_, row) in enumerate(df.iterrows()):
+#         query = f"""
+#         INSERT IGNORE INTO {name}(movie_id, title, overview, status, release_date, adult, video, runtime, vote_average, vote_count)
+#         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+#         """
+#
+#         values = list(row)
+#
+#         if cnx and cnx.is_connected():
+#             with cnx.cursor() as cursor:
+#                 cursor.execute(query, values)
+#
+#         update_progress(i + 1, total_rows)
 
 
 def load_all_movies_from_db(cnx: MySQLConnection) -> pd.DataFrame:
@@ -196,18 +255,35 @@ def create_genre_tables(cnx: MySQLConnection) -> None:
             )
             """)
 
-
 def populate_genre_table(cnx: MySQLConnection, csv_file_path: str) -> None:
     if cnx and cnx.is_connected():
-        data = pd.read_csv(csv_file_path)
+        data = pd.read_csv(csv_file_path, na_values='nan')
         data = data.drop_duplicates(subset="genre_id", keep="first")
 
         with cnx.cursor() as cursor:
             for _, row in data.iterrows():
-                query = f"INSERT IGNORE INTO Genre (genre_id, name) VALUES (%s, %s)"
-                cursor.execute(query, tuple(row))
+                values = list(row)
+                for vi in range(len(values)):
+                    v = values[vi]
+                    if pd.isnull(v):
+                        values[vi] = 'nan'
+                    if isinstance(v, str):
+                        values[vi] = v.replace("'", "''")
+                query = f"INSERT IGNORE INTO Genre (genre_id, name) VALUES (NULLIF(%s, 'nan'), NULLIF(%s, 'nan'))"
+                cursor.execute(query, values)
 
         cnx.commit()
+# def populate_genre_table(cnx: MySQLConnection, csv_file_path: str) -> None:
+#     if cnx and cnx.is_connected():
+#         data = pd.read_csv(csv_file_path)
+#         data = data.drop_duplicates(subset="genre_id", keep="first")
+#
+#         with cnx.cursor() as cursor:
+#             for _, row in data.iterrows():
+#                 query = f"INSERT IGNORE INTO Genre (genre_id, name) VALUES (%s, %s)"
+#                 cursor.execute(query, tuple(row))
+#
+#         cnx.commit()
 
 
 def populate_classified_in_table(cnx: MySQLConnection, csv_file_path: str) -> None:
@@ -218,8 +294,15 @@ def populate_classified_in_table(cnx: MySQLConnection, csv_file_path: str) -> No
 
         with cnx.cursor() as cursor:
             for _, row in data.iterrows():
+                values = list(row)
+                for vi in range(len(values)):
+                    v = values[vi]
+                    if pd.isnull(v):
+                        values[vi] = 'nan'
+                    if isinstance(v, str):
+                        values[vi] = v.replace("'", "''")
                 query = f"INSERT IGNORE INTO Classified_In (movie_id, genre_id) VALUES (%s, %s)"
-                cursor.execute(query, tuple(row))
+                cursor.execute(query, values)
 
         cnx.commit()
 
@@ -301,8 +384,15 @@ def populate_classified_in_table(cnx: MySQLConnection, csv_file_path: str) -> No
 
         with cnx.cursor() as cursor:
             for _, row in data.iterrows():
+                values = list(row)
+                for vi in range(len(values)):
+                    v = values[vi]
+                    if pd.isnull(v):
+                        values[vi] = 'nan'
+                    if isinstance(v, str):
+                        values[vi] = v.replace("'", "''")
                 query = f"INSERT IGNORE INTO Classified_In (movie_id, genre_id) VALUES (%s, %s)"
-                cursor.execute(query, tuple(row))
+                cursor.execute(query, values)
 
         cnx.commit()
 
@@ -331,8 +421,15 @@ def populate_production_table(cnx: MySQLConnection, csv_file_path: str) -> None:
 
         with cnx.cursor() as cursor:
             for _, row in data.iterrows():
+                values = list(row)
+                for vi in range(len(values)):
+                    v = values[vi]
+                    if pd.isnull(v):
+                        values[vi] = 'nan'
+                    if isinstance(v, str):
+                        values[vi] = v.replace("'", "''")
                 query = f"INSERT IGNORE INTO Production VALUES (%s, %s)"
-                cursor.execute(query, tuple(row))
+                cursor.execute(query, values)
 
         cnx.commit()
 
@@ -363,8 +460,15 @@ def populate_produced_by_table(cnx: MySQLConnection, csv_file_path: str) -> None
 
         with cnx.cursor() as cursor:
             for _, row in data.iterrows():
+                values = list(row)
+                for vi in range(len(values)):
+                    v = values[vi]
+                    if pd.isnull(v):
+                        values[vi] = 'nan'
+                    if isinstance(v, str):
+                        values[vi] = v.replace("'", "''")
                 query = f"INSERT IGNORE INTO Produced_By VALUES (%s, %s)"
-                cursor.execute(query, tuple(row))
+                cursor.execute(query, values)
 
         cnx.commit()
 
@@ -392,9 +496,16 @@ def populate_crew_table(cnx: MySQLConnection, csv_file_path: str) -> None:
 
         with cnx.cursor() as cursor:
             for _, row in data.iterrows():
+                values = list(row)
+                for vi in range(len(values)):
+                    v = values[vi]
+                    if pd.isnull(v):
+                        values[vi] = 'nan'
+                    if isinstance(v, str):
+                        values[vi] = v.replace("'", "''")
                 try:
                     query = f"INSERT IGNORE INTO Crew VALUES (%s)"
-                    cursor.execute(query, tuple(row))
+                    cursor.execute(query, values)
                 except Exception as e:
                     print("Error processing", row)
                     print(e)
@@ -423,17 +534,33 @@ def create_performs_table(cnx: MySQLConnection) -> None:
             """
             cursor.execute(query)
 
-
 def populate_performs_table(cnx: MySQLConnection, csv_file_path: str) -> None:
     if cnx and cnx.is_connected():
-        data = pd.read_csv(csv_file_path)
+        data = pd.read_csv(csv_file_path, na_values='nan')
 
         with cnx.cursor() as cursor:
             for _, row in data.iterrows():
-                query = f"INSERT IGNORE INTO Performs VALUES (%s, %s, %s)"
-                cursor.execute(query, tuple(row))
+                values = list(row)
+                for vi in range(len(values)):
+                    v = values[vi]
+                    if pd.isnull(v):
+                        values[vi] = 'nan'
+                    if isinstance(v, str):
+                        values[vi] = v.replace("'", "''")
+                query = f"INSERT IGNORE INTO Performs VALUES (NULLIF(%s, 'nan'), NULLIF(%s, 'nan'), NULLIF(%s, 'nan'))"
+                cursor.execute(query, values)
 
         cnx.commit()
+# def populate_performs_table(cnx: MySQLConnection, csv_file_path: str) -> None:
+#     if cnx and cnx.is_connected():
+#         data = pd.read_csv(csv_file_path)
+#
+#         with cnx.cursor() as cursor:
+#             for _, row in data.iterrows():
+#                 query = f"INSERT IGNORE INTO Performs VALUES (%s, %s, %s)"
+#                 cursor.execute(query, tuple(row))
+#
+#         cnx.commit()
 
 
 """
@@ -458,8 +585,15 @@ def populate_job_table(cnx: MySQLConnection, csv_file_path: str) -> None:
 
         with cnx.cursor() as cursor:
             for _, row in data.iterrows():
+                values = list(row)
+                for vi in range(len(values)):
+                    v = values[vi]
+                    if pd.isnull(v):
+                        values[vi] = 'nan'
+                    if isinstance(v, str):
+                        values[vi] = v.replace("'", "''")
                 query = f"INSERT IGNORE INTO Job VALUES (%s)"
-                cursor.execute(query, tuple(row))
+                cursor.execute(query, values)
 
         cnx.commit()
 
@@ -480,15 +614,32 @@ def create_credit_table(cnx: MySQLConnection) -> None:
             """
             cursor.execute(query)
 
-
 def populate_credit_table(cnx: MySQLConnection, csv_file_path: str) -> None:
     if cnx and cnx.is_connected():
-        data = pd.read_csv(csv_file_path)
+        data = pd.read_csv(csv_file_path, na_values='nan')
         data = data.drop_duplicates(subset="person_id", keep="first")
 
         with cnx.cursor() as cursor:
             for _, row in data.iterrows():
-                query = f"INSERT IGNORE INTO Credit VALUES (%s, %s)"
-                cursor.execute(query, tuple(row))
+                values = list(row)
+                for vi in range(len(values)):
+                    v = values[vi]
+                    if pd.isnull(v):
+                        values[vi] = 'nan'
+                    if isinstance(v, str):
+                        values[vi] = v.replace("'", "''")
+                query = f"INSERT IGNORE INTO Credit VALUES (NULLIF(%s, 'nan'), NULLIF(%s, 'nan'))"
+                cursor.execute(query, values)
 
         cnx.commit()
+# def populate_credit_table(cnx: MySQLConnection, csv_file_path: str) -> None:
+#     if cnx and cnx.is_connected():
+#         data = pd.read_csv(csv_file_path)
+#         data = data.drop_duplicates(subset="person_id", keep="first")
+#
+#         with cnx.cursor() as cursor:
+#             for _, row in data.iterrows():
+#                 query = f"INSERT IGNORE INTO Credit VALUES (%s, %s)"
+#                 cursor.execute(query, tuple(row))
+#
+#         cnx.commit()
