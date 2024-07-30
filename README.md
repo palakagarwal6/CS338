@@ -10,17 +10,30 @@ In order to use this project effectively, the user must have:
  a. the environmental variables for python and its scripts properly configured (when installing python, there is an option to add python to PATH. This is 100% necessary) 
 3. The following modules. These can be installed via a script in `main.bat`, or you can use the pip command.
  a. mysql-connector-python
- b. getpass
+ b. getpass4
  c. tabulate
+ d. sqlalchemy
+ e. pandas
+ f. pymysql
 
 # Usage
 Simply copy this repository and run `main.bat`
+- it will prompt you to install some python modules which will be required
+- prompt you to select "CLI" or "GUI"
 
-This will prompt you to:
-- connect to your mysql database, assuming your server host is `localhost`
-- allow you to choose create the movie schema (if not already created)
-- create necessary tables
-- load data from `CS338-main\tables`
-- prompt you to a simple search title search function
+## CLI
+When selecting the CLI option in main.bat, it will prompt you to:
+- enter DB crednetials, and save if preferred
+- prompt to recreate the DB with prod/sample dataset
+- present the user to a menu with different options
 
 ![image](https://github.com/palakagarwal6/CS338/assets/170012515/72c1e590-35e4-4bda-8a91-f523cc2c9865)
+
+
+## GUI
+## IMPORTANT STEPS FOR GUI
+Before running the GUI navigate to `CS338-main\GUI\db.py` and edit line 23 to enter your db connection password. This is required for the GUI to run!
+
+When selecting the GUI option in main.bit, it will:
+- open a browser to a local connection GUI
+- in the left hand bar presents the option to load the prod/sample database, as well as some additional menu items.
