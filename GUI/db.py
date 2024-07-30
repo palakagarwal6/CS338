@@ -20,7 +20,7 @@ def connect_to_mysql() -> MySQLConnection:
     config = {
         "host": "localhost",
         "user": "root",
-        "password": "Zz13667187517"
+        "password": "[your password]"
     }
 
     if GLOBAL_CNX:

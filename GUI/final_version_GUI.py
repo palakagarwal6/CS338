@@ -199,7 +199,7 @@ elif mode == "Statistics":
     st.dataframe(crew_stats_df.iloc[start_idx:end_idx])
 
 # Feature 1: Extended Movie Details
-engine = create_engine('mysql+pymysql://root:Zz13667187517@localhost:3306/netflix')
+engine = create_engine('mysql+pymysql://root:[your password]@localhost:3306/netflix')
 
 st.header('Extended Movie Details')
 
