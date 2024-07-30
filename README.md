@@ -9,11 +9,17 @@ In order to use this project effectively, the user must have:
 2. Any version of Python 3 installed on their machine
  a. the environmental variables for python and its scripts properly configured (when installing python, there is an option to add python to PATH. This is 100% necessary) 
 3. The following modules. These can be installed via a script in `main.bat`, or you can use the pip command.
+
  a. mysql-connector-python
+
  b. getpass4
+
  c. tabulate
+
  d. sqlalchemy
+
  e. pandas
+
  f. pymysql
 
 # Usage
@@ -33,6 +39,7 @@ When selecting the CLI option in main.bat, it will prompt you to:
 ## GUI
 ## IMPORTANT STEPS FOR GUI
 Before running the GUI: 
+
 navigate to `CS338-main\GUI\db.py` and edit line 23 to enter your db connection password (replace [your_password])
 navigate to `CS338-main\GUI\gui_main.py` and edit line 202 to enter your db connection password (replace [your_password])
 
