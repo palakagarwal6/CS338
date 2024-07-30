@@ -32,8 +32,11 @@ When selecting the CLI option in main.bat, it will prompt you to:
 
 ## GUI
 ## IMPORTANT STEPS FOR GUI
-Before running the GUI navigate to `CS338-main\GUI\db.py` and edit line 23 to enter your db connection password. This is required for the GUI to run!
+Before running the GUI: 
+navigate to `CS338-main\GUI\db.py` and edit line 23 to enter your db connection password (replace [your_password])
 
 When selecting the GUI option in main.bit, it will:
 - open a browser to a local connection GUI
 - in the left hand bar presents the option to load the prod/sample database, as well as some additional menu items.
+
+![image](https://github.com/user-attachments/assets/43766bb7-6f5f-44cd-a1ea-12937dddac3d)
