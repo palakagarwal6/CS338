@@ -34,6 +34,7 @@ When selecting the CLI option in main.bat, it will prompt you to:
 ## IMPORTANT STEPS FOR GUI
 Before running the GUI: 
 navigate to `CS338-main\GUI\db.py` and edit line 23 to enter your db connection password (replace [your_password])
+navigate to `CS338-main\GUI\gui_main.py` and edit line 202 to enter your db connection password (replace [your_password])
 
 When selecting the GUI option in main.bit, it will:
 - open a browser to a local connection GUI
